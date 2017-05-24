@@ -1,0 +1,83 @@
+package model;
+
+import java.util.ArrayList;
+
+/**
+ * This is the result of the individual pieces put together. 
+ * The message generator will read in the given input, create a list of words and their next possible states, 
+ * and use it to create a message. The message is not guaranteed to be coherent.
+ * @author Richie
+ *
+ */
+public class MessageGenerator {
+
+	public static void main(String[] args) {
+		String test = "The quick brown fox jumped over the lazy dog";
+		String[] input = test.split("\\s+");
+		
+		MessageGenerator msgGen = new MessageGenerator();
+		
+		for (int i = 0; i < input.length - 1; i++) {
+			msgGen.addInput(input[i], input[i + 1]);
+		}
+		
+		for (MarkovChain mc : msgGen.listOfWords) {
+			System.out.println(mc.getWord());
+		}
+	}
+	
+	public ArrayList<MarkovChain> listOfWords;
+	
+	public MessageGenerator() {
+		listOfWords = new ArrayList<>();
+	}
+	
+	/**
+	 * Adds the word to the list of words and the word immediately following it as a possible state of the first. 
+	 * Updates the number of occurrences of the second word as a possible state of the first word. 
+	 * @param firstWord - the first word that is considered the main one in that respective chain
+	 * @param wordAfter - the second word that is a possible state of the first word
+	 */
+	public void addInput(String firstWord, String wordAfter) {
+		if (wordAfter == null) {
+			return;
+		}
+		firstWord = firstWord.toLowerCase();
+		firstWord = firstWord.trim();
+		wordAfter = wordAfter.toLowerCase();
+		wordAfter = wordAfter.trim();
+		
+		// The word has yet to be represented
+		if (!contains(firstWord)) {
+			MarkovChain newWord = new MarkovChain(firstWord);
+			newWord.addState(wordAfter);
+			listOfWords.add(newWord);
+			
+		}
+		// Not the first occurrence of the word
+		else {
+			for (MarkovChain mc : listOfWords) {
+				if (mc.getWord().equals(firstWord)) {
+					// Update the number of occurrences
+					mc.addState(wordAfter);
+					return;
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Checks to see if the word is already exists as a markov chain. 
+	 * @param word - a String containing the word to check for
+	 * @return true if the word is already represented in a chain, false otherwise
+	 */
+	public boolean contains(String word) {
+		for (MarkovChain mc : listOfWords) {
+			if (mc.getWord().equals(word)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+}

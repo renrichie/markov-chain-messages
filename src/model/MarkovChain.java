@@ -29,7 +29,7 @@ public class MarkovChain {
 	 * For example, in "The quick brown fox jumps over the lazy dog," the word "the" would have 
 	 * "quick" and "lazy" as possible states. 
 	 * 
-	 * @param word - a word containing a possible response to the current word in the chain
+	 * @param word - a String containing a possible response to the current word in the chain
 	 */
 	public void addState(String word) {
 		// Increases the number of occurrences of the word
