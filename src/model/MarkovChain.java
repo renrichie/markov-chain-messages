@@ -10,7 +10,9 @@ import org.apache.commons.math3.util.Pair;
  * The fundamental structure to my implementation of the markov chain. 
  * It is capable of adding possible states and generating a response based off 
  * of the hashmap containing possible states, where the number of occurrences of 
- * the word in relation affects the possibility of being chosen.
+ * the word in relation affects the possibility of being chosen. 
+ * A markov chain is essentially a probabilistic model where the current state 
+ * affects what possible states can follow afterward.
  * @author Richie Ren
  *
  */

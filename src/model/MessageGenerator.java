@@ -6,7 +6,7 @@ import java.util.ArrayList;
  * This is the result of the individual pieces put together. 
  * The message generator will read in the given input, create a list of words and their next possible states, 
  * and use it to create a message. The message is not guaranteed to be coherent.
- * @author Richie
+ * @author Richie Ren
  *
  */
 public class MessageGenerator {
@@ -22,10 +22,11 @@ public class MessageGenerator {
 		}
 		
 		for (MarkovChain mc : msgGen.listOfWords) {
-			System.out.println(mc.getWord());
+			System.out.printf("Current word: %s | Three attempts at possible responses: %s, %s, %s\n", mc.getWord(), mc.getPossibleState(), mc.getPossibleState(), mc.getPossibleState());
+			
 		}
 	}
-	
+	// TODO: Switch this back to private; was only set to public for light testing
 	public ArrayList<MarkovChain> listOfWords;
 	
 	public MessageGenerator() {
@@ -79,5 +80,30 @@ public class MessageGenerator {
 		}
 		
 		return false;
+	}
+	
+	/**
+	 * Generates a text message using the markov chains.
+	 * @return a String containing the message
+	 */
+	public String generateText() {
+		// TODO: finish writing the algorithm
+		return "";
+	}
+	
+	/**
+	 * Generates and returns a possible word based on the possible states of the given word. 
+	 * If the word does not exist in any of the chains, it returns a period.
+	 * @param word - a String containing the current word in the sentence
+	 * @return a String with a possible response that follows the current word
+	 */
+	private String getNextWord(String word) {
+		for (MarkovChain mc : listOfWords) {
+			if (mc.getWord().equals(word)) {
+				return mc.getPossibleState();
+			}
+		}
+		
+		return ".";
 	}
 }
