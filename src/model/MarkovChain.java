@@ -19,11 +19,13 @@ import org.apache.commons.math3.util.Pair;
 public class MarkovChain {
 	
 	private String word;
+	private boolean firstInInput;
 	private HashMap<String,Integer> possibleStates;
 	
 	public MarkovChain(String word) {
 		this.word = word;
-		possibleStates = new HashMap<>();
+		this.firstInInput = false;
+		this.possibleStates = new HashMap<>();
 	}
 	
 	/**
@@ -50,6 +52,22 @@ public class MarkovChain {
 	 */
 	public String getWord() {
 		return this.word;
+	}
+	
+	/**
+	 * Indicates whether or not the current word was potentially the first word in the sentence.
+	 * @return true if the word was possibly the first word, false otherwise
+	 */
+	public boolean isFirst() {
+		return this.firstInInput;
+	}
+	
+	/**
+	 * Sets the boolean flag that indicates whether or not the word was potentially the first in the sentence.
+	 * @param value - a boolean value indicating its status
+	 */
+	public void setIsFirst(boolean value) {
+		this.firstInInput = value;
 	}
 	
 	/**

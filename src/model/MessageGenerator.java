@@ -1,6 +1,10 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.Set;
+
+import org.apache.commons.math3.distribution.EnumeratedDistribution;
+import org.apache.commons.math3.util.Pair;
 
 /**
  * This is the result of the individual pieces put together. 
@@ -43,15 +47,20 @@ public class MessageGenerator {
 		if (wordAfter == null) {
 			return;
 		}
-		firstWord = firstWord.toLowerCase();
+
 		firstWord = firstWord.trim();
-		wordAfter = wordAfter.toLowerCase();
 		wordAfter = wordAfter.trim();
+		
+		boolean sentenceStarter = Character.isUpperCase(firstWord.charAt(0));
+		
+		firstWord = firstWord.toLowerCase();
+		wordAfter = wordAfter.toLowerCase();
 		
 		// The word has yet to be represented
 		if (!contains(firstWord)) {
 			MarkovChain newWord = new MarkovChain(firstWord);
 			newWord.addState(wordAfter);
+			newWord.setIsFirst(sentenceStarter);
 			listOfWords.add(newWord);
 			
 		}
@@ -87,7 +96,17 @@ public class MessageGenerator {
 	 * @return a String containing the message
 	 */
 	public String generateText() {
+		ArrayList<String> possibleSentenceStarts = new ArrayList<>();
+		
+		// Adds all the possible words into an array list
+		for (MarkovChain mc : listOfWords) {
+			if (mc.isFirst()) {
+				possibleSentenceStarts.add(mc.getWord());
+			}
+		}
+		
 		// TODO: finish writing the algorithm
+		
 		return "";
 	}
 	
