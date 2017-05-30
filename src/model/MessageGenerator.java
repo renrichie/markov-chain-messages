@@ -106,6 +106,14 @@ public class MessageGenerator {
 		}
 		
 		// TODO: finish writing the algorithm
+		// Generate the first word of a sentence from a list of common ones like "The" or "A"
+		// Possibly move the creation of a sentence into a new function and simply call it in this function
+		if (possibleSentenceStarts.isEmpty()) {
+			
+		}
+		else {
+			
+		}
 		
 		return "";
 	}
