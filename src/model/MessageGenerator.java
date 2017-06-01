@@ -2,6 +2,7 @@ package model;
 
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.commons.math3.distribution.EnumeratedDistribution;
 import org.apache.commons.math3.util.Pair;
@@ -25,16 +26,20 @@ public class MessageGenerator {
 			msgGen.addInput(input[i], input[i + 1]);
 		}
 		
-		for (MarkovChain mc : msgGen.listOfWords) {
-			System.out.printf("Current word: %s | Three attempts at possible responses: %s, %s, %s\n", mc.getWord(), mc.getPossibleState(), mc.getPossibleState(), mc.getPossibleState());
-			
+		for (int i = 0; i < 10; i++) {
+			System.out.println(msgGen.generateText());
 		}
 	}
-	// TODO: Switch this back to private; was only set to public for light testing
-	public ArrayList<MarkovChain> listOfWords;
+
+	private ArrayList<MarkovChain> listOfWords;
+	private String[] commonArticles;
 	
 	public MessageGenerator() {
 		listOfWords = new ArrayList<>();
+		commonArticles = new String[3];
+		commonArticles[0] = "A";
+		commonArticles[1] = "An";
+		commonArticles[2] = "The";
 	}
 	
 	/**
@@ -69,6 +74,7 @@ public class MessageGenerator {
 			for (MarkovChain mc : listOfWords) {
 				if (mc.getWord().equals(firstWord)) {
 					// Update the number of occurrences
+					mc.addOccurrence();
 					mc.addState(wordAfter);
 					return;
 				}
@@ -83,7 +89,7 @@ public class MessageGenerator {
 	 */
 	public boolean contains(String word) {
 		for (MarkovChain mc : listOfWords) {
-			if (mc.getWord().equals(word)) {
+			if (mc.getWord().equalsIgnoreCase(word)) {
 				return true;
 			}
 		}
@@ -97,6 +103,8 @@ public class MessageGenerator {
 	 */
 	public String generateText() {
 		ArrayList<String> possibleSentenceStarts = new ArrayList<>();
+		String retVal = "",
+			   currentWord = "";
 		
 		// Adds all the possible words into an array list
 		for (MarkovChain mc : listOfWords) {
@@ -105,17 +113,58 @@ public class MessageGenerator {
 			}
 		}
 		
-		// TODO: finish writing the algorithm
-		// Generate the first word of a sentence from a list of common ones like "The" or "A"
-		// Possibly move the creation of a sentence into a new function and simply call it in this function
+		// Chooses the first word of the sentence
 		if (possibleSentenceStarts.isEmpty()) {
-			
+			// Use common articles to start the sentence
+			if (Math.random() <= 0.5) {
+				int randomNum = ThreadLocalRandom.current().nextInt(0, commonArticles.length);
+				currentWord = commonArticles[randomNum];
+			}
+			// Choose a random word from the list of words to start the sentence by using a weighted selection based on the number of occurrences
+			else {
+				currentWord = weightedWordSelection();
+			}
 		}
 		else {
-			
+			int randomNum = ThreadLocalRandom.current().nextInt(0, possibleSentenceStarts.size());
+			currentWord = possibleSentenceStarts.get(randomNum);
 		}
 		
-		return "";
+		retVal += currentWord + " ";
+		int numberOfWords = ThreadLocalRandom.current().nextInt(10, 30);
+		int currentNumWords = 1;
+		
+		// TODO: Possibly move the creation of a sentence into a new function and simply call it in this function
+		while (currentNumWords != numberOfWords) {
+			if (!contains(currentWord)) {
+				currentWord = weightedWordSelection();
+			}
+			else {
+				currentWord = getNextWord(currentWord);
+			}
+			
+			retVal += currentWord + " ";
+			currentNumWords++;
+		}
+		
+		return retVal.substring(0,1).toUpperCase() + retVal.substring(1, retVal.length() - 1) + ".";
+	}
+	
+	/**
+	 * Randomly chooses a word from the list of all words, where the number of occurrences alters the chance of being selected. 
+	 * This is done using a probability mass function.
+	 * @return a word randomly selected from the list of words
+	 */
+	private String weightedWordSelection() {
+		ArrayList<Pair<String,Double>> potentialStarters = new ArrayList<>();
+		
+		for (MarkovChain mc : listOfWords) {
+			potentialStarters.add(new Pair<String, Double>(mc.getWord(), 0.0 + mc.getOccurrences()));
+		}
+		
+		EnumeratedDistribution<String> weightedSelection = new EnumeratedDistribution<>(potentialStarters);
+		
+		return weightedSelection.sample();
 	}
 	
 	/**
@@ -126,7 +175,7 @@ public class MessageGenerator {
 	 */
 	private String getNextWord(String word) {
 		for (MarkovChain mc : listOfWords) {
-			if (mc.getWord().equals(word)) {
+			if (mc.getWord().equalsIgnoreCase(word)) {
 				return mc.getPossibleState();
 			}
 		}

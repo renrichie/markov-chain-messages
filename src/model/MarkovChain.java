@@ -19,11 +19,13 @@ import org.apache.commons.math3.util.Pair;
 public class MarkovChain {
 	
 	private String word;
+	private int occurrences;
 	private boolean firstInInput;
 	private HashMap<String,Integer> possibleStates;
 	
 	public MarkovChain(String word) {
 		this.word = word;
+		this.occurrences = 1;
 		this.firstInInput = false;
 		this.possibleStates = new HashMap<>();
 	}
@@ -89,5 +91,20 @@ public class MarkovChain {
 		EnumeratedDistribution<String> weightedSelection = new EnumeratedDistribution<>(possibleStatesList);
 		
 		return weightedSelection.sample();
+	}
+	
+	/**
+	 * Increases the int containing the number of times the word has occurred in the input.
+	 */
+	public void addOccurrence() {
+		this.occurrences++;
+	}
+	
+	/**
+	 * Returns the number of times that the word has occurred in the input.
+	 * @return an int containing the number of occurrences
+	 */
+	public int getOccurrences() {
+		return this.occurrences;
 	}
 }
