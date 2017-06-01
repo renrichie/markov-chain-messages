@@ -83,7 +83,7 @@ public class MessageGenerator {
 		if (!contains(firstWord)) {
 			MarkovChain newWord = new MarkovChain(firstWord);
 			newWord.addState(wordAfter);
-			newWord.setIsFirst(sentenceStarter);
+			newWord.setIsCapital(sentenceStarter);
 			listOfWords.add(newWord);
 			
 		}
@@ -126,7 +126,7 @@ public class MessageGenerator {
 		
 		// Adds all the possible words into an array list
 		for (MarkovChain mc : listOfWords) {
-			if (mc.isFirst()) {
+			if (mc.isCapital()) {
 				possibleSentenceStarts.add(mc.getWord());
 			}
 		}
@@ -163,11 +163,16 @@ public class MessageGenerator {
 			}
 			
 			String wordNoNonAlphanumerics = currentWord.replaceAll("[^A-Za-z0-9]", "");
+			
+			if (wordNoNonAlphanumerics.length() == 0) {
+				continue;
+			}
+			
 			char firstChar = currentWord.charAt(0);
 			
 			// TODO: Maybe add some way to recognize proper nouns and leave them capitalized
 			// Capitalizes the word
-			if ((firstChar == '“' || firstChar == '"') && currentWord.length() >= 2) {
+			if ((firstChar == '\u201c' || firstChar == '"') && currentWord.length() >= 2) {
 				currentWord = currentWord.substring(0,1) + currentWord.substring(1,2).toUpperCase() + currentWord.substring(2);
 			}
 			else if (needToCapitalize) {
@@ -183,7 +188,7 @@ public class MessageGenerator {
 			
 			// Checks to see if it is the end of a sentence
 			char lastChar = currentWord.charAt(currentWord.length() - 1);
-			if (lastChar == '!' || lastChar == '.' || lastChar == '?' || lastChar == '"' || lastChar == '”' || lastChar == ')') {
+			if (lastChar == '!' || lastChar == '.' || lastChar == '?' || lastChar == '"' || lastChar == '\u201d' || lastChar == ')') {
 				needToCapitalize = true;
 			}
 			

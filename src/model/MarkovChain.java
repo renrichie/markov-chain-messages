@@ -20,13 +20,15 @@ public class MarkovChain {
 	
 	private String word;
 	private int occurrences;
-	private boolean firstInInput;
+	private boolean capitalized;
+	private boolean properNoun;
 	private HashMap<String,Integer> possibleStates;
 	
 	public MarkovChain(String word) {
 		this.word = word;
 		this.occurrences = 1;
-		this.firstInInput = false;
+		this.capitalized = false;
+		this.properNoun = false;
 		this.possibleStates = new HashMap<>();
 	}
 	
@@ -57,19 +59,35 @@ public class MarkovChain {
 	}
 	
 	/**
-	 * Indicates whether or not the current word was potentially the first word in the sentence.
-	 * @return true if the word was possibly the first word, false otherwise
+	 * Indicates whether or not the current word was capitalized in the sentence.
+	 * @return true if the word was capitalized, false otherwise
 	 */
-	public boolean isFirst() {
-		return this.firstInInput;
+	public boolean isCapital() {
+		return this.capitalized;
 	}
 	
 	/**
-	 * Sets the boolean flag that indicates whether or not the word was potentially the first in the sentence.
+	 * Sets the boolean flag that indicates whether or not the word was capitalized.
 	 * @param value - a boolean value indicating its status
 	 */
-	public void setIsFirst(boolean value) {
-		this.firstInInput = value;
+	public void setIsCapital(boolean value) {
+		this.capitalized = value;
+	}
+	
+	/**
+	 * Indicates whether or not the current word is potentially a proper noun.
+	 * @return true if the word is proper, false otherwise
+	 */
+	public boolean isProperNoun() {
+		return this.properNoun;
+	}
+	
+	/**
+	 * Sets the boolean flag that indicates whether or not the word is a proper noun.
+	 * @param value - a boolean value indicating its status
+	 */
+	public void setIsProperNoun(boolean value) {
+		this.properNoun = value;
 	}
 	
 	/**
