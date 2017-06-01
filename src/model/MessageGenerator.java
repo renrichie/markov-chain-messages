@@ -17,7 +17,7 @@ import org.apache.commons.math3.util.Pair;
 public class MessageGenerator {
 
 	public static void main(String[] args) {
-		String test = "The quick brown fox jumped over the lazy dog";
+		String test = "Her big, brown eyes looked up at me pleadingly, as the first tear began to roll slowly down her soft, six-year-old, innocent face. I was as shocked as she was. I had been called to my daughter’s new school by the remedial teacher. Was I aware my daughter had learning difficulties? Yes I was. Due to constant ear infections Elizabeth had lost her hearing for the best part of two years of her young life. Amongst other things, her speech had been delayed and her reading was behind other children her age. This teacher, this person specially trained to help children, the very person who was supposed to help my daughter reach her full potential, had called me in to school to tell me, and my daughter, that she would be lucky if she ever managed to finished high school. What is a mother supposed to do when even the remedial teacher doesn’t have any faith in your child’s ability? What do you tell your child when she has been told that she is doomed to failure before she has even finished primary school? That was the question I was struggling to answer even as I stood there in that room, listening to this insensitive, authoritarian woman, who had no heart, wishing I had never brought my daughter to this school. I wondered, if this teacher was a mother? No, she couldn’t be. I truly believe you cannot have a child and not have a heart. I took my child’s small hand as we left this cold, killer-of-dreams office, to step outside into the sweet, fresh air. There, I bent down on one knee and, putting my hands on my daughter small but now heavy shoulders, I looked her straight in the eyes. “Elizabeth”, I said sternly, “If you work hard at school, I promise you, you can be anything you want to be.” She smiled and took my hand for the journey home. Elizabeth finished high school. In fact she went on to university. The day Elizabeth was presented with her Degree, a Bachelor in Social Studies, I emailed the school. Of course, I knew the remedial teacher would be long gone but I wanted every teacher there to know, as I would like all teachers to know, that every child has potential ... that no-one should ever tell a child they are beyond hope. Elizabeth’s story is a perfect example ... every child has potential. I hope there is not one parent who will listen to anybody who suggests otherwise.";
 		String[] input = test.split("\\s+");
 		
 		MessageGenerator msgGen = new MessageGenerator();
@@ -28,6 +28,7 @@ public class MessageGenerator {
 		
 		for (int i = 0; i < 10; i++) {
 			System.out.println(msgGen.generateText());
+			System.out.println();
 		}
 	}
 
@@ -133,6 +134,7 @@ public class MessageGenerator {
 		retVal += currentWord + " ";
 		int numberOfWords = ThreadLocalRandom.current().nextInt(10, 30);
 		int currentNumWords = 1;
+		boolean needToCapitalize = false;
 		
 		// TODO: Possibly move the creation of a sentence into a new function and simply call it in this function
 		while (currentNumWords != numberOfWords) {
@@ -141,6 +143,25 @@ public class MessageGenerator {
 			}
 			else {
 				currentWord = getNextWord(currentWord);
+			}
+			
+			// TODO: Maybe add some way to recognize proper nouns and leave them capitalized
+			// Capitalizes the word
+			if (needToCapitalize) {
+				currentWord = currentWord.substring(0,1).toUpperCase() + currentWord.substring(1);
+				needToCapitalize = false;
+			}
+			else if (currentWord.equalsIgnoreCase("I")) {
+				currentWord = currentWord.toUpperCase();
+			}
+			else {
+				currentWord = currentWord.toLowerCase();
+			}
+			
+			// Checks to see if it is the end of a sentence
+			char lastChar = currentWord.charAt(currentWord.length() - 1);
+			if (lastChar == '!' || lastChar == '.' || lastChar == '?' || lastChar == '"' || lastChar == ')') {
+				needToCapitalize = true;
 			}
 			
 			retVal += currentWord + " ";
