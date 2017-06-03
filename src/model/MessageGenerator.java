@@ -105,7 +105,7 @@ public class MessageGenerator {
 	 * @param word - a String containing the word to check for
 	 * @return true if the word is already represented in a chain, false otherwise
 	 */
-	public boolean contains(String word) {
+	private boolean contains(String word) {
 		for (MarkovChain mc : listOfWords) {
 			if (mc.getWord().equalsIgnoreCase(word)) {
 				return true;
@@ -120,6 +120,10 @@ public class MessageGenerator {
 	 * @return a String containing the message
 	 */
 	public String generateText() {
+		if (listOfWords.isEmpty()) {
+			return "";
+		}
+		
 		ArrayList<String> possibleSentenceStarts = new ArrayList<>();
 		String retVal = "",
 			   currentWord = "";

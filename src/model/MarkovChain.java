@@ -98,6 +98,10 @@ public class MarkovChain {
 	 * @return a String that is one of many possible responses to the current word
 	 */
 	public String getPossibleState() {
+		if (possibleStates.isEmpty()) {
+			return "";
+		}
+		
 		ArrayList<Pair<String,Double>> possibleStatesList = new ArrayList<>();
 		
 		// Adds all the states into an array list
