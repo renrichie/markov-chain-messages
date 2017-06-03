@@ -3,15 +3,24 @@ Generates text-based messages using markov chaining on the given input.
 
 Inspired by reddit.com/r/subredditsimulator
 
----------------------------WORK IN PROGRESS---------------------------
+COMPLETED
+----------
+- Iteration 1
+  - Finish the model
+  - Test the model
 
-TODO:
+TODO
+----------
+- Iteration 2
+  - Create a GUI
+  - Make the data persistent
 
-Basics
-1. Finish the model
-2. Test the model
-3. Create a GUI
-4. Refactoring and polishing
+- Iteration 3
+  - Refactoring and polishing
+  - Implement usage of Twitter API to allow for scraping of user profile as input
 
-Planned feature
-- Implement usage of Twitter API to allow for scraping of user profile as input
+FUTURE PLANS
+----------
+- Add Named Entity Recognition for properly capitalizing proper nouns
+- Ensure message length to be under 150 characters in order to follow the format of a Twitter post
+- Optimization
