@@ -18,6 +18,7 @@ TODO
 - Iteration 3
   - Refactoring and polishing
   - Implement usage of Twitter API to allow for scraping of user profile as input
+  - Make GUI resemble the format of a Twitter post
 
 FUTURE PLANS
 ----------
