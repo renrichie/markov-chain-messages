@@ -157,6 +157,9 @@ public class MessageGenerator {
 		int currentNumWords = 1;
 		boolean needToCapitalize = false;
 		
+		char lastCharTemp = currentWord.charAt(currentWord.length() - 1);
+		needToCapitalize = (lastCharTemp == '!' || lastCharTemp == '.' || lastCharTemp == '?' || lastCharTemp == '"' || lastCharTemp == '\u201d' || lastCharTemp == ')');
+		
 		// TODO: Possibly move the creation of a sentence into a new function and simply call it in this function
 		while (currentNumWords != numberOfWords) {
 			if (!contains(currentWord)) {
@@ -192,15 +195,23 @@ public class MessageGenerator {
 			
 			// Checks to see if it is the end of a sentence
 			char lastChar = currentWord.charAt(currentWord.length() - 1);
-			if (lastChar == '!' || lastChar == '.' || lastChar == '?' || lastChar == '"' || lastChar == '\u201d' || lastChar == ')') {
-				needToCapitalize = true;
-			}
+			needToCapitalize = (lastChar == '!' || lastChar == '.' || lastChar == '?' || lastChar == '"' || lastChar == '\u201d' || lastChar == ')');
 			
 			retVal += currentWord + " ";
 			currentNumWords++;
 		}
 		
-		return retVal.substring(0,1).toUpperCase() + retVal.substring(1, retVal.length() - 1) + ".";
+		retVal = retVal.substring(0,1).toUpperCase() + retVal.substring(1, retVal.length() - 1);
+		
+		// Adds a period for punctuation, otherwise randomizes the ending punctuation mark
+		if (Character.isLetterOrDigit(retVal.charAt(retVal.length() - 1))) {
+			return retVal + ".";
+		}
+		
+		char[] punctuation = { '.', '!', '?' };
+		char endingPunctuation = punctuation[ThreadLocalRandom.current().nextInt(0, punctuation.length)];
+		
+		return retVal.substring(0, retVal.length() - 1) + endingPunctuation;
 	}
 	
 	/**
