@@ -5,9 +5,10 @@ import java.awt.Color;
 import java.awt.FileDialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.Scanner;
+import java.io.FileReader;
+import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -39,6 +40,7 @@ public class GraphicalView extends JPanel {
 		
 		this.genText = new JButton("Generate text");
 		this.browse = new JButton("Browse...");
+		this.genText.setEnabled(false);
 		
 		this.fd = new FileDialog(msgGenClient, "Choose a file", FileDialog.LOAD);
 		this.fd.setDirectory("C:\\");
@@ -56,28 +58,33 @@ public class GraphicalView extends JPanel {
 					msgGen.clearInput();
 					
 					String text = "";
+					boolean analyzingInput = true;
+					genText.setEnabled(!analyzingInput);
 					
 					try {
-						Scanner io = new Scanner(new File(fileName));
-
-						while (io.hasNextLine()) {
-							text += io.nextLine() + " ";
-							System.out.println("Reading");
+						BufferedReader io = new BufferedReader(new FileReader(new File(fileName)));
+						
+						for (String x = io.readLine(); x != null; x = io.readLine())
+			            {
+							text += x + " ";
 						}
 
 						io.close();
-					} catch (FileNotFoundException exception) {
+					} catch (IOException exception) {
 						System.out.println("An exception has appeared: " + fileName);
 						fileName = null;
 					}
 					
+					// Add the input to the message generator
 					if (fileName != null) {
 						String[] input = text.split("\\s+");
+						
 						for (int i = 0; i < input.length - 1; i++) {
 							msgGen.addInput(input[i], input[i + 1]);
 						}
-						System.out.println("Input has been read");
-						System.out.println(text.length());
+						
+						analyzingInput = false;
+						genText.setEnabled(!analyzingInput);
 					}
 				}
 			}
@@ -87,7 +94,6 @@ public class GraphicalView extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				String text = msgGen.generateText();
 				result.setText(text);
-				System.out.println("Generating...");
 				System.out.println(text);
 			}
 		});

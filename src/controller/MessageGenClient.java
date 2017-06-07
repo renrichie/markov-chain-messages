@@ -30,6 +30,7 @@ public class MessageGenClient extends JFrame {
 		this.width = 500;
 		this.height = 300;
 		this.setSize(width, height);
+		this.setResizable(false);
 		
 		this.add(new GraphicalView(msgGen, this, width, height));
 		this.addWindowListener(new windowListener());
