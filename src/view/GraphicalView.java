@@ -7,8 +7,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -62,7 +64,7 @@ public class GraphicalView extends JPanel {
 					genText.setEnabled(!analyzingInput);
 					
 					try {
-						BufferedReader io = new BufferedReader(new FileReader(new File(fileName)));
+						BufferedReader io = new BufferedReader(new InputStreamReader(new FileInputStream(new File(fileName)), Charset.forName("windows-1252")));
 						
 						for (String x = io.readLine(); x != null; x = io.readLine())
 			            {
