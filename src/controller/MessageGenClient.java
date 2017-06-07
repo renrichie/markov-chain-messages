@@ -1,15 +1,12 @@
 package controller;
 
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 
 import model.MessageGenerator;
 import view.GraphicalView;
@@ -31,6 +28,10 @@ public class MessageGenClient extends JFrame {
 		this.height = 300;
 		this.setSize(width, height);
 		this.setResizable(false);
+
+		// Starts the instance in the middle of the screen; Works for multi-monitor
+		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+		this.setLocation((int) (gd.getDisplayMode().getWidth() / 3), (int) (gd.getDisplayMode().getHeight() / 3));
 		
 		this.add(new GraphicalView(msgGen, this, width, height));
 		this.addWindowListener(new windowListener());
