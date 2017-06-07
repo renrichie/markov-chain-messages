@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Scanner;
-import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.commons.math3.distribution.EnumeratedDistribution;
@@ -212,6 +211,14 @@ public class MessageGenerator {
 		char endingPunctuation = punctuation[ThreadLocalRandom.current().nextInt(0, punctuation.length)];
 		
 		return retVal.substring(0, retVal.length() - 1) + endingPunctuation;
+	}
+	
+	/**
+	 * Clears all markov chains from the generator and then calls Java's garbage collector.
+	 */
+	public void clearInput() {
+		listOfWords.clear();
+		System.gc();
 	}
 	
 	/**
