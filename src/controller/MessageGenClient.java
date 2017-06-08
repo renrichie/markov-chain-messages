@@ -11,6 +11,12 @@ import javax.swing.JFrame;
 import model.MessageGenerator;
 import view.GraphicalView;
 
+/**
+ * This is a simple controller for the message generator that will initialize the GUI 
+ * and create an instance of the message generator itself.
+ * @author Richie
+ *
+ */
 public class MessageGenClient extends JFrame {
 	
 	public static void main(String[] args) {
@@ -37,19 +43,24 @@ public class MessageGenClient extends JFrame {
 		this.addWindowListener(new windowListener());
 	}
 	
+	/**
+	 * A window listener in order to modify the operations of closing a window.
+	 * @author Richie
+	 *
+	 */
 	private class windowListener extends WindowAdapter implements WindowListener {
-
+		
 		@Override
 		public void windowActivated(WindowEvent e) {
-
 		}
 
 		@Override
 		public void windowClosed(WindowEvent e) {
-			// TODO Auto-generated method stub
-
 		}
 
+		/**
+		 * Handles what operations occur when the window is exited.
+		 */
 		@Override
 		public void windowClosing(WindowEvent e) {
 			setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -81,22 +92,18 @@ public class MessageGenClient extends JFrame {
 
 		@Override
 		public void windowDeactivated(WindowEvent e) {
-			// TODO Auto-generated method stub
 		}
 
 		@Override
 		public void windowDeiconified(WindowEvent e) {
-			// TODO Auto-generated method stub
 		}
 
 		@Override
 		public void windowIconified(WindowEvent e) {
-			// TODO Auto-generated method stub
 		}
 
 		@Override
 		public void windowOpened(WindowEvent e) {
-			// TODO Auto-generated method stub
 		}
 
 	}

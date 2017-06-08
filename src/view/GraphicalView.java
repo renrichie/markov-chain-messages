@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
@@ -19,10 +20,17 @@ import javax.swing.JTextArea;
 import controller.MessageGenClient;
 import model.MessageGenerator;
 
+/**
+ * This is a rough graphical view for the message generator that is meant to demonstrate proof of 
+ * concept for the program's use on an input text file.
+ * @author Richie
+ *
+ */
 public class GraphicalView extends JPanel {
 
 	private MessageGenerator msgGen;
 	private MessageGenClient msgGenClient;
+	private JPanel buttonHolder;
 	private JButton genText, browse;
 	private JTextArea result;
 	private FileDialog fd;
@@ -34,19 +42,27 @@ public class GraphicalView extends JPanel {
 		
 		this.result = new JTextArea();
 		this.result.setLineWrap(true);
+		this.result.setWrapStyleWord(true);
 		this.result.setEditable(false);
+		this.result.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		this.result.setSize(width - (width / 10), height - (height / 10));
 		
-		this.setBackground(Color.WHITE);
+		this.setBackground(Color.DARK_GRAY);
 		this.setSize(width, height);
 		this.fileName = null;
 		
 		this.genText = new JButton("Generate text");
-		this.browse = new JButton("Browse...");
 		this.genText.setEnabled(false);
+		
+		this.browse = new JButton("Browse...");
 		
 		this.fd = new FileDialog(msgGenClient, "Choose a file", FileDialog.LOAD);
 		this.fd.setDirectory("C:\\");
 		this.fd.setFile("*.txt");
+		
+		this.buttonHolder = new JPanel();
+		this.buttonHolder.add(genText);
+		this.buttonHolder.add(browse);
 		
 		this.setLayout(new BorderLayout());
 		
@@ -100,8 +116,7 @@ public class GraphicalView extends JPanel {
 			}
 		});
 		
-		this.add(result, BorderLayout.NORTH);
-		this.add(genText, BorderLayout.WEST);
-		this.add(browse, BorderLayout.EAST);
+		this.add(result, BorderLayout.CENTER);
+		this.add(buttonHolder, BorderLayout.SOUTH);
 	}
 }
