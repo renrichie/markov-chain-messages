@@ -32,4 +32,15 @@ public class MessageGeneratorTest {
 		assertTrue(message.contains("foo"));
 		assertTrue(message.contains("bar"));
 	}
+	
+	@Test
+	public void testClearInput() {
+		MessageGenerator mg = new MessageGenerator();
+		mg.addInput("foo", "bar");
+		
+		assertTrue(mg.generateText() != "");
+		
+		mg.clearInput();
+		assertTrue(mg.generateText() == "");
+	}
 }

@@ -14,7 +14,7 @@ import view.GraphicalView;
 /**
  * This is a simple controller for the message generator that will initialize the GUI 
  * and create an instance of the message generator itself.
- * @author Richie
+ * @author Richie Ren
  *
  */
 public class MessageGenClient extends JFrame {
@@ -45,7 +45,7 @@ public class MessageGenClient extends JFrame {
 	
 	/**
 	 * A window listener in order to modify the operations of closing a window.
-	 * @author Richie
+	 * @author Richie Ren
 	 *
 	 */
 	private class windowListener extends WindowAdapter implements WindowListener {

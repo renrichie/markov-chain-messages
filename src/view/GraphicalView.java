@@ -23,7 +23,7 @@ import model.MessageGenerator;
 /**
  * This is a rough graphical view for the message generator that is meant to demonstrate proof of 
  * concept for the program's use on an input text file.
- * @author Richie
+ * @author Richie Ren
  *
  */
 public class GraphicalView extends JPanel {
