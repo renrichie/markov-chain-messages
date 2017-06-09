@@ -9,12 +9,12 @@ COMPLETED
   - Finish the model
   - Test the model
 
-TODO
-----------
 - Iteration 2
   - Create a GUI
   - Make the data persistent
 
+TODO
+----------
 - Iteration 3
   - Refactoring and polishing
   - Implement usage of Twitter API to allow for scraping of user profile as input
