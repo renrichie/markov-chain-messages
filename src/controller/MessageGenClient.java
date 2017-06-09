@@ -34,6 +34,7 @@ public class MessageGenClient extends JFrame {
 		this.height = 300;
 		this.setSize(width, height);
 		this.setResizable(false);
+		this.setTitle("Markov Chain Message Generator");
 
 		// Starts the instance in the middle of the screen; Works for multi-monitor
 		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();

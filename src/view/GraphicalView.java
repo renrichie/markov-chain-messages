@@ -14,6 +14,7 @@ import java.nio.charset.Charset;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
@@ -31,10 +32,12 @@ public class GraphicalView extends JPanel {
 	private MessageGenerator msgGen;
 	private MessageGenClient msgGenClient;
 	private JPanel buttonHolder;
-	private JButton genText, browse;
+	private JButton genText, browse, howToUse;
 	private JTextArea result;
 	private FileDialog fd;
 	private String fileName;
+	private final String instructions = "Select a .txt containing some input text using the 'Browse' button.\n"
+										+ "Press the 'Generate' button in order to randomly generate messages based on the provided input.\n";
 	
 	public GraphicalView(MessageGenerator msgGenIn, MessageGenClient frame, int width, int height) {
 		this.msgGen = msgGenIn;
@@ -51,10 +54,12 @@ public class GraphicalView extends JPanel {
 		this.setSize(width, height);
 		this.fileName = null;
 		
-		this.genText = new JButton("Generate text");
+		this.genText = new JButton("Generate Text");
 		this.genText.setEnabled(false);
 		
 		this.browse = new JButton("Browse...");
+		
+		this.howToUse = new JButton("How To Use");
 		
 		this.fd = new FileDialog(msgGenClient, "Choose a file", FileDialog.LOAD);
 		this.fd.setDirectory("C:\\");
@@ -62,6 +67,7 @@ public class GraphicalView extends JPanel {
 		
 		this.buttonHolder = new JPanel();
 		this.buttonHolder.add(genText);
+		this.buttonHolder.add(howToUse);
 		this.buttonHolder.add(browse);
 		
 		this.setLayout(new BorderLayout());
@@ -113,6 +119,12 @@ public class GraphicalView extends JPanel {
 				String text = msgGen.generateText();
 				result.setText(text);
 				System.out.println(text);
+			}
+		});
+		
+		howToUse.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JOptionPane.showMessageDialog(frame, instructions, "How To Use", JOptionPane.INFORMATION_MESSAGE);
 			}
 		});
 		
