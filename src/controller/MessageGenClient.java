@@ -66,29 +66,6 @@ public class MessageGenClient extends JFrame {
 		public void windowClosing(WindowEvent e) {
 			setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 			System.exit(0);
-			// Example code for making data persistent
-			// TODO: Still need to implement Serializable on relevant classes
-//			int i = JOptionPane.showConfirmDialog(null, "Save data?");
-//			FileOutputStream bytesToDisk = null;
-//			if (i == 0) {
-//
-//				try {
-//					bytesToDisk = new FileOutputStream("Jukebox.ser");
-//					ObjectOutputStream outFile = new ObjectOutputStream(bytesToDisk);
-//					outFile.writeObject(jukebox);
-//					outFile.close();
-//				} catch (FileNotFoundException fnfe) {
-//					fnfe.printStackTrace();
-//				} catch (IOException ioe) {
-//					ioe.printStackTrace();
-//				}
-//				setDefaultCloseOperation(EXIT_ON_CLOSE);
-//			} else if (i == 1) {
-//				setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-//				System.exit(0);
-//			} else {
-//				setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-//			}
 		}
 
 		@Override
