@@ -73,6 +73,7 @@ public class TwitterView extends JPanel {
 		this.buttonHolder.add(analyze);
 
 		this.username = new JTextField("15CharsUsername");
+		this.username.setPreferredSize(this.username.getPreferredSize());
 		this.username.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
 		this.usernameHolder = new JPanel();
