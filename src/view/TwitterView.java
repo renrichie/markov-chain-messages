@@ -42,6 +42,7 @@ public class TwitterView extends JPanel {
 	private JButton genText, analyze, howToUse;
 	private JTextArea result; 
 	private JTextField username;
+	private boolean analyzingInput;
 	private final String instructions = "Type in the username of a Twitter profile to use for input.\n"
 			+ "Press the 'Analyze' button to allow the program to start analyzing the user's tweets.\n"
 			+ "Press the 'Generate' button in order to randomly generate messages based on the provided input.\n";
@@ -64,6 +65,7 @@ public class TwitterView extends JPanel {
 		genText.setEnabled(false);
 
 		analyze = new JButton("Analyze");
+		analyzingInput = false;
 
 		howToUse = new JButton("How To Use");
 
@@ -117,82 +119,104 @@ public class TwitterView extends JPanel {
 			}
 		});
 
-		// TODO: Move this to a private class that runs its own Thread
-		// 		 Also need a state boolean indicating if it's currently analyzing, so 
-		// 		 when a user presses the button again, a popup occurs
-		analyze.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				boolean analyzingInput = true;
-				genText.setEnabled(!analyzingInput);
-				msgGen.clearInput();
-				System.gc();
-				
-				String user = username.getText();
+		analyze.addActionListener(new TwitterListener());
+	}
+	
+	/**
+	 * An action listener for the analyze button that runs in a separate thread so that the GUI is still responsive.
+	 * @author Richie Ren
+	 *
+	 */
+	private class TwitterListener implements ActionListener {
+		private void startThread() {
+			// Prevents multiple Threads from analyzing the input
+			if (analyzingInput) {
+				JOptionPane.showMessageDialog(msgGenClient, "The program is currently analyzing the input!", "In Progress", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			
+			// Starts a new thread
+			// Anonymous Thread method taken from ELITE at https://stackoverflow.com/questions/30286705/
+			new Thread() {
+				public void run() {
+					analyzingInput = true;
+					genText.setEnabled(!analyzingInput);
+					msgGen.clearInput();
+					System.gc();
 
-				if (user.length() == 0) {
-					JOptionPane.showMessageDialog(msgGenClient, "There needs to be a specified username!", "Error", JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-				else if (user.length() > 15) {
-					JOptionPane.showMessageDialog(msgGenClient, "The specified username is too long!", "Error", JOptionPane.ERROR_MESSAGE);
-					return;
-				}
+					String user = username.getText();
 
-				// Creates a builder using Twitter auth keys
-				ConfigurationBuilder cb = new ConfigurationBuilder();
-
-				try {
-					Scanner keyReader = new Scanner(new File("assets/keys"));
-					cb.setOAuthConsumerKey(keyReader.nextLine());
-					cb.setOAuthConsumerSecret(keyReader.nextLine());
-					cb.setOAuthAccessToken(keyReader.nextLine());
-					cb.setOAuthAccessTokenSecret(keyReader.nextLine());
-					keyReader.close();
-				} catch (FileNotFoundException fe) {
-					fe.printStackTrace();
-					System.exit(-1);
-				}
-				
-				// Pulls the Tweets from the specified user's profile
-				Twitter twitter = new TwitterFactory(cb.build()).getInstance();
-
-				int pageno = 1;
-				List<Status> statuses = new ArrayList<>();
-
-				while (true) {
-					try {
-						int size = statuses.size(); 
-						Paging page = new Paging(pageno++, 100);
-						statuses.addAll(twitter.getUserTimeline(user, page));
-						if (statuses.size() == size)
-							break;
-					}
-					catch(TwitterException te) {
-						JOptionPane.showMessageDialog(msgGenClient, "An error occurred when attempting to parse the user's profile!", "Error", JOptionPane.ERROR_MESSAGE);
+					if (user.length() == 0) {
+						JOptionPane.showMessageDialog(msgGenClient, "There needs to be a specified username!", "Error", JOptionPane.ERROR_MESSAGE);
 						return;
 					}
+					else if (user.length() > 15) {
+						JOptionPane.showMessageDialog(msgGenClient, "The specified username is too long!", "Error", JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+
+					// Creates a builder using Twitter auth keys
+					ConfigurationBuilder cb = new ConfigurationBuilder();
+
+					try {
+						Scanner keyReader = new Scanner(new File("assets/keys"));
+						cb.setOAuthConsumerKey(keyReader.nextLine());
+						cb.setOAuthConsumerSecret(keyReader.nextLine());
+						cb.setOAuthAccessToken(keyReader.nextLine());
+						cb.setOAuthAccessTokenSecret(keyReader.nextLine());
+						keyReader.close();
+					} catch (FileNotFoundException fe) {
+						fe.printStackTrace();
+						System.exit(-1);
+					}
+
+					// Pulls the Tweets from the specified user's profile
+					Twitter twitter = new TwitterFactory(cb.build()).getInstance();
+
+					int pageno = 1;
+					List<Status> statuses = new ArrayList<>();
+
+					while (true) {
+						try {
+							int size = statuses.size(); 
+							Paging page = new Paging(pageno++, 100);
+							statuses.addAll(twitter.getUserTimeline(user, page));
+							if (statuses.size() == size)
+								break;
+						}
+						catch(TwitterException te) {
+							JOptionPane.showMessageDialog(msgGenClient, "An error occurred when attempting to parse the user's profile!", "Error", JOptionPane.ERROR_MESSAGE);
+							return;
+						}
+					}
+
+					if (statuses.isEmpty()) {
+						JOptionPane.showMessageDialog(msgGenClient, "The user has no statuses!", "Error", JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+
+					// Puts in the text as input for the markov chains
+					String text = "";
+
+					for (Status s : statuses) {
+						text += s.getText() + " ";
+					}
+
+					String[] input = text.split("\\s+");
+
+					for (int i = 0; i < input.length - 1; i++) {
+						msgGen.addInput(input[i], input[i + 1]);
+					}
+
+					analyzingInput = false;
+					genText.setEnabled(!analyzingInput);
 				}
-				
-				if (statuses.isEmpty()) {
-					JOptionPane.showMessageDialog(msgGenClient, "The user has no statuses!", "Error", JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-				
-				String text = "";
-				
-				for (Status s : statuses) {
-					text += s.getText() + " ";
-				}
-				
-				String[] input = text.split("\\s+");
-				
-				for (int i = 0; i < input.length - 1; i++) {
-					msgGen.addInput(input[i], input[i + 1]);
-				}
-				
-				analyzingInput = false;
-				genText.setEnabled(!analyzingInput);
-			}
-		});
+			}.start();
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent arg0) {			
+			startThread();
+		}
 	}
 }
