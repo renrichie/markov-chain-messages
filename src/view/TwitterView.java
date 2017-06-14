@@ -91,6 +91,15 @@ public class TwitterView extends JPanel {
 	}
 	
 	/**
+	 * Used to reset the views to their default state upon switching.
+	 */
+	public void reset() {
+		genText.setEnabled(false);
+		result.setText("");
+		username.setText("15CharsUsername");
+	}
+	
+	/**
 	 * Sets up the action listeners for the buttons.
 	 */
 	private void setupListeners() {

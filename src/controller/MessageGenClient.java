@@ -65,7 +65,7 @@ public class MessageGenClient extends JFrame {
 	private void setupMenu() {
 		JMenuItem menu = new JMenu("Options");
 		
-		//Adds the views to a menu
+		// Adds the views to a menu
 		JMenuItem input = new JMenu("Input");
 		JMenuItem twitter = new JMenuItem("Twitter");
 		JMenuItem text = new JMenuItem("Text File");
@@ -92,7 +92,8 @@ public class MessageGenClient extends JFrame {
 		if (currentView != null) {
 			remove(currentView);
 		}
-		
+		twitterView.reset();
+		graphicView.reset();
 		currentView = newView;
 		add(currentView);
 		currentView.repaint();

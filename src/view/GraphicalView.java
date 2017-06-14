@@ -79,6 +79,14 @@ public class GraphicalView extends JPanel {
 	}
 	
 	/**
+	 * Used to reset the views to their default state upon switching.
+	 */
+	public void reset() {
+		genText.setEnabled(false);
+		result.setText("");
+	}
+	
+	/**
 	 * Sets up the action listeners for the buttons.
 	 */
 	private void setupListeners() {
