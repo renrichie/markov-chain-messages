@@ -12,6 +12,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import model.MessageGenerator;
@@ -38,13 +39,13 @@ public class MessageGenClient extends JFrame {
 	private int width, height;
 	
 	public MessageGenClient() {
-		this.msgGen = new MessageGenerator();
+		msgGen = new MessageGenerator();
 		
-		this.twitterView = new TwitterView(msgGen, this, width, height);
-		this.graphicView = new GraphicalView(msgGen, this, width, height);
+		twitterView = new TwitterView(msgGen, this, width, height);
+		graphicView = new GraphicalView(msgGen, this, width, height);
 		
-		this.width = 500;
-		this.height = 300;
+		width = 500;
+		height = 300;
 		this.setSize(width, height);
 		this.setResizable(false);
 		this.setTitle("Markov Chain Message Generator");
@@ -65,7 +66,7 @@ public class MessageGenClient extends JFrame {
 	private void setupMenu() {
 		JMenuItem menu = new JMenu("Options");
 		
-		//Adds the views to a menu
+		// Adds the views to a menu
 		JMenuItem input = new JMenu("Input");
 		JMenuItem twitter = new JMenuItem("Twitter");
 		JMenuItem text = new JMenuItem("Text File");
@@ -89,10 +90,21 @@ public class MessageGenClient extends JFrame {
 	 * @param newView
 	 */
 	private void setViewTo(JPanel newView) {
+		if (currentView == newView) {
+			return;
+		}
+		
+		if (twitterView.isAnalyzing() || graphicView.isAnalyzing()) {
+			JOptionPane.showMessageDialog(this, "Please wait until the program finishes analyzing the data before switching views.", "In Progress", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		
 		if (currentView != null) {
 			remove(currentView);
 		}
 		
+		twitterView.reset();
+		graphicView.reset();
 		currentView = newView;
 		add(currentView);
 		currentView.repaint();
