@@ -3,11 +3,19 @@ package model;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.commons.math3.distribution.EnumeratedDistribution;
 import org.apache.commons.math3.util.Pair;
+
+import twitter4j.Paging;
+import twitter4j.Status;
+import twitter4j.Twitter;
+import twitter4j.TwitterException;
+import twitter4j.TwitterFactory;
+import twitter4j.conf.ConfigurationBuilder;
 
 /**
  * This is the result of the individual pieces put together. 
@@ -19,33 +27,38 @@ import org.apache.commons.math3.util.Pair;
 public class MessageGenerator {
 
 	public static void main(String[] args) {
-		String text = "";
-		
-		try {
-			Scanner io = new Scanner(new File("input/input"));
-			
-			while (io.hasNextLine()) {
-				text += io.nextLine() + " ";
-			}
-			
-			io.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			System.exit(-1);
-		}
-		
-		String[] input = text.split("\\s+");
-		
-		MessageGenerator msgGen = new MessageGenerator();
-		
-		for (int i = 0; i < input.length - 1; i++) {
-			msgGen.addInput(input[i], input[i + 1]);
-		}
-		
-		for (int i = 0; i < 10; i++) {
-			System.out.println(msgGen.generateText());
-			System.out.println();
-		}
+		ConfigurationBuilder cb = new ConfigurationBuilder();
+	    cb.setOAuthConsumerKey("YOUR KEY");
+	    cb.setOAuthConsumerSecret("YOUR KEY");
+	    cb.setOAuthAccessToken("YOUR KEY");
+	    cb.setOAuthAccessTokenSecret("YOUR KEY");
+
+	    Twitter twitter = new TwitterFactory(cb.build()).getInstance();
+
+	    int pageno = 1;
+	    String user = "realDonaldTrump";
+	    List<Status> statuses = new ArrayList<>();
+
+	    while (true) {
+
+	      try {
+
+	        int size = statuses.size(); 
+	        Paging page = new Paging(pageno++, 100);
+	        statuses.addAll(twitter.getUserTimeline(user, page));
+	        if (statuses.size() == size)
+	          break;
+	      }
+	      catch(TwitterException e) {
+
+	        e.printStackTrace();
+	      }
+	    }
+	    for (Status s : statuses) {
+	    	System.out.println("@" + s.getUser().getScreenName() + " - " + s.getText());
+	    	System.out.println();
+	    }
+	    System.out.println("Total: "+statuses.size());
 	}
 
 	private ArrayList<MarkovChain> listOfWords;
