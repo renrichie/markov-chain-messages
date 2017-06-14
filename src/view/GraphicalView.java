@@ -40,38 +40,48 @@ public class GraphicalView extends JPanel {
 										+ "Press the 'Generate' button in order to randomly generate messages based on the provided input.\n";
 	
 	public GraphicalView(MessageGenerator msgGenIn, MessageGenClient frame, int width, int height) {
-		this.msgGen = msgGenIn;
-		this.msgGenClient = frame;
+		msgGen = msgGenIn;
+		msgGenClient = frame;
 		
-		this.result = new JTextArea();
-		this.result.setLineWrap(true);
-		this.result.setWrapStyleWord(true);
-		this.result.setEditable(false);
-		this.result.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-		this.result.setSize(width - (width / 10), height - (height / 10));
+		result = new JTextArea();
+		result.setLineWrap(true);
+		result.setWrapStyleWord(true);
+		result.setEditable(false);
+		result.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		result.setSize(width - (width / 10), height - (height / 10));
 		
 		this.setBackground(Color.DARK_GRAY);
 		this.setSize(width, height);
-		this.fileName = null;
+		fileName = null;
 		
-		this.genText = new JButton("Generate Text");
-		this.genText.setEnabled(false);
+		genText = new JButton("Generate Text");
+		genText.setEnabled(false);
 		
-		this.browse = new JButton("Browse...");
+		browse = new JButton("Browse...");
 		
-		this.howToUse = new JButton("How To Use");
+		howToUse = new JButton("How To Use");
 		
-		this.fd = new FileDialog(msgGenClient, "Choose a file", FileDialog.LOAD);
-		this.fd.setDirectory("C:\\");
-		this.fd.setFile("*.txt");
+		fd = new FileDialog(msgGenClient, "Choose a file", FileDialog.LOAD);
+		fd.setDirectory("C:\\");
+		fd.setFile("*.txt");
 		
-		this.buttonHolder = new JPanel();
-		this.buttonHolder.add(genText);
-		this.buttonHolder.add(howToUse);
-		this.buttonHolder.add(browse);
+		buttonHolder = new JPanel();
+		buttonHolder.add(genText);
+		buttonHolder.add(howToUse);
+		buttonHolder.add(browse);
 		
 		this.setLayout(new BorderLayout());
 		
+		setupListeners();
+		
+		this.add(result, BorderLayout.CENTER);
+		this.add(buttonHolder, BorderLayout.SOUTH);
+	}
+	
+	/**
+	 * Sets up the action listeners for the buttons.
+	 */
+	private void setupListeners() {
 		browse.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				fd.setVisible(true);
@@ -124,11 +134,8 @@ public class GraphicalView extends JPanel {
 		
 		howToUse.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				JOptionPane.showMessageDialog(frame, instructions, "How To Use", JOptionPane.INFORMATION_MESSAGE);
+				JOptionPane.showMessageDialog(msgGenClient, instructions, "How To Use", JOptionPane.INFORMATION_MESSAGE);
 			}
 		});
-		
-		this.add(result, BorderLayout.CENTER);
-		this.add(buttonHolder, BorderLayout.SOUTH);
 	}
 }

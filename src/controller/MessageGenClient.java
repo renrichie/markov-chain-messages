@@ -38,13 +38,13 @@ public class MessageGenClient extends JFrame {
 	private int width, height;
 	
 	public MessageGenClient() {
-		this.msgGen = new MessageGenerator();
+		msgGen = new MessageGenerator();
 		
-		this.twitterView = new TwitterView(msgGen, this, width, height);
-		this.graphicView = new GraphicalView(msgGen, this, width, height);
+		twitterView = new TwitterView(msgGen, this, width, height);
+		graphicView = new GraphicalView(msgGen, this, width, height);
 		
-		this.width = 500;
-		this.height = 300;
+		width = 500;
+		height = 300;
 		this.setSize(width, height);
 		this.setResizable(false);
 		this.setTitle("Markov Chain Message Generator");

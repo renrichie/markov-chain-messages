@@ -47,42 +47,53 @@ public class TwitterView extends JPanel {
 			+ "Press the 'Generate' button in order to randomly generate messages based on the provided input.\n";
 
 	public TwitterView(MessageGenerator msgGenIn, MessageGenClient frame, int width, int height) {
-		this.msgGen = msgGenIn;
-		this.msgGenClient = frame;
+		msgGen = msgGenIn;
+		msgGenClient = frame;
 
-		this.result = new JTextArea();
-		this.result.setLineWrap(true);
-		this.result.setWrapStyleWord(true);
-		this.result.setEditable(false);
-		this.result.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-		this.result.setSize(width - (width / 10), height - (height / 10));
+		result = new JTextArea();
+		result.setLineWrap(true);
+		result.setWrapStyleWord(true);
+		result.setEditable(false);
+		result.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		result.setSize(width - (width / 10), height - (height / 10));
 
 		this.setBackground(Color.DARK_GRAY);
 		this.setSize(width, height);
 
-		this.genText = new JButton("Generate Text");
-		this.genText.setEnabled(false);
+		genText = new JButton("Generate Text");
+		genText.setEnabled(false);
 
-		this.analyze = new JButton("Analyze");
+		analyze = new JButton("Analyze");
 
-		this.howToUse = new JButton("How To Use");
+		howToUse = new JButton("How To Use");
 
-		this.buttonHolder = new JPanel();
-		this.buttonHolder.add(genText);
-		this.buttonHolder.add(howToUse);
-		this.buttonHolder.add(analyze);
+		buttonHolder = new JPanel();
+		buttonHolder.add(genText);
+		buttonHolder.add(howToUse);
+		buttonHolder.add(analyze);
 
-		this.username = new JTextField("15CharsUsername");
-		this.username.setPreferredSize(this.username.getPreferredSize());
-		this.username.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		username = new JTextField("15CharsUsername");
+		username.setPreferredSize(this.username.getPreferredSize());
+		username.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
-		this.usernameHolder = new JPanel();
-		this.usernameHolder.setBackground(Color.WHITE);
-		this.usernameHolder.add(new JLabel("https://twitter.com/"));
-		this.usernameHolder.add(username);
+		usernameHolder = new JPanel();
+		usernameHolder.setBackground(Color.WHITE);
+		usernameHolder.add(new JLabel("https://twitter.com/"));
+		usernameHolder.add(username);
 
 		this.setLayout(new BorderLayout());
 
+		this.add(usernameHolder, BorderLayout.NORTH);
+		this.add(result, BorderLayout.CENTER);
+		this.add(buttonHolder, BorderLayout.SOUTH);
+		
+		setupListeners();
+	}
+	
+	/**
+	 * Sets up the action listeners for the buttons.
+	 */
+	private void setupListeners() {
 		genText.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String text = msgGen.generateText();
@@ -93,7 +104,7 @@ public class TwitterView extends JPanel {
 
 		howToUse.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				JOptionPane.showMessageDialog(frame, instructions, "How To Use", JOptionPane.INFORMATION_MESSAGE);
+				JOptionPane.showMessageDialog(msgGenClient, instructions, "How To Use", JOptionPane.INFORMATION_MESSAGE);
 			}
 		});
 
@@ -110,11 +121,11 @@ public class TwitterView extends JPanel {
 				String user = username.getText();
 
 				if (user.length() == 0) {
-					JOptionPane.showMessageDialog(frame, "There needs to be a specified username!", "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(msgGenClient, "There needs to be a specified username!", "Error", JOptionPane.ERROR_MESSAGE);
 					return;
 				}
 				else if (user.length() > 15) {
-					JOptionPane.showMessageDialog(frame, "The specified username is too long!", "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(msgGenClient, "The specified username is too long!", "Error", JOptionPane.ERROR_MESSAGE);
 					return;
 				}
 
@@ -127,6 +138,7 @@ public class TwitterView extends JPanel {
 					cb.setOAuthConsumerSecret(keyReader.nextLine());
 					cb.setOAuthAccessToken(keyReader.nextLine());
 					cb.setOAuthAccessTokenSecret(keyReader.nextLine());
+					keyReader.close();
 				} catch (FileNotFoundException fe) {
 					fe.printStackTrace();
 					System.exit(-1);
@@ -147,13 +159,13 @@ public class TwitterView extends JPanel {
 							break;
 					}
 					catch(TwitterException te) {
-						JOptionPane.showMessageDialog(frame, "An error occurred when attempting to parse the user's profile!", "Error", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(msgGenClient, "An error occurred when attempting to parse the user's profile!", "Error", JOptionPane.ERROR_MESSAGE);
 						return;
 					}
 				}
 				
 				if (statuses.isEmpty()) {
-					JOptionPane.showMessageDialog(frame, "The user has no statuses!", "Error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(msgGenClient, "The user has no statuses!", "Error", JOptionPane.ERROR_MESSAGE);
 					return;
 				}
 				
@@ -173,9 +185,5 @@ public class TwitterView extends JPanel {
 				genText.setEnabled(!analyzingInput);
 			}
 		});
-
-		this.add(usernameHolder, BorderLayout.NORTH);
-		this.add(result, BorderLayout.CENTER);
-		this.add(buttonHolder, BorderLayout.SOUTH);
 	}
 }

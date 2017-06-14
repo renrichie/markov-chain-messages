@@ -97,7 +97,6 @@ public class MessageGenerator {
 			newWord.addState(wordAfter);
 			newWord.setIsCapital(sentenceStarter);
 			listOfWords.add(newWord);
-			
 		}
 		// Not the first occurrence of the word
 		else {
