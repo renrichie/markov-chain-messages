@@ -10,6 +10,7 @@ import javax.swing.JFrame;
 
 import model.MessageGenerator;
 import view.GraphicalView;
+import view.TwitterView;
 
 /**
  * This is a simple controller for the message generator that will initialize the GUI 
@@ -40,7 +41,8 @@ public class MessageGenClient extends JFrame {
 		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 		this.setLocation((int) (gd.getDisplayMode().getWidth() / 3), (int) (gd.getDisplayMode().getHeight() / 3));
 		
-		this.add(new GraphicalView(msgGen, this, width, height));
+		this.add(new TwitterView(msgGen, this, width, height));
+		//this.add(new GraphicalView(msgGen, this, width, height));
 		this.addWindowListener(new windowListener());
 	}
 	
