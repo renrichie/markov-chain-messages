@@ -35,7 +35,8 @@ public class MarkovChainTest {
 		
 		// Two possible states
 		mc.addState("foobar");
-		assertTrue(mc.getPossibleState() == "bar" || mc.getPossibleState() == "foobar");
+		String result = mc.getPossibleState();
+		assertTrue(result == "bar" || result == "foobar");
 	}
 	
 	@Test

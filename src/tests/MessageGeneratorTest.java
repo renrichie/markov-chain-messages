@@ -22,8 +22,10 @@ public class MessageGeneratorTest {
 		String message = mg.generateText();
 		String[] tokenized = message.split("\\s+");
 		
-		assertTrue(Character.isUpperCase(tokenized[0].charAt(0)));
-		assertFalse(Character.isUpperCase(tokenized[0].charAt(1)));
+		String firstOne = tokenized[0];
+		
+		assertTrue(Character.isUpperCase(firstOne.charAt(0)));
+		assertFalse(Character.isUpperCase(firstOne.charAt(1)));
 		
 		assertTrue(message.charAt(message.length() - 1) == '.');
 		
