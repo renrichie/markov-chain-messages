@@ -105,6 +105,7 @@ public class TwitterView extends JPanel {
 				boolean analyzingInput = true;
 				genText.setEnabled(!analyzingInput);
 				msgGen.clearInput();
+				System.gc();
 				
 				String user = username.getText();
 
