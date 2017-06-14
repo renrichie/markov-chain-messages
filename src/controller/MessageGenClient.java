@@ -12,6 +12,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import model.MessageGenerator;
@@ -89,9 +90,19 @@ public class MessageGenClient extends JFrame {
 	 * @param newView
 	 */
 	private void setViewTo(JPanel newView) {
+		if (currentView == newView) {
+			return;
+		}
+		
+		if (twitterView.isAnalyzing() || graphicView.isAnalyzing()) {
+			JOptionPane.showMessageDialog(this, "Please wait until the program finishes analyzing the data before switching views.", "In Progress", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		
 		if (currentView != null) {
 			remove(currentView);
 		}
+		
 		twitterView.reset();
 		graphicView.reset();
 		currentView = newView;

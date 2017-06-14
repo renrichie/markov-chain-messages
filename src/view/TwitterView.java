@@ -45,6 +45,7 @@ public class TwitterView extends JPanel {
 	private boolean analyzingInput;
 	private final String instructions = "Type in the username of a Twitter profile to use for input.\n"
 			+ "Press the 'Analyze' button to allow the program to start analyzing the user's tweets.\n"
+			+ "Wait until the program finishes analyzing (the 'Generate' button will enable itself).\n"
 			+ "Press the 'Generate' button in order to randomly generate messages based on the provided input.\n";
 
 	public TwitterView(MessageGenerator msgGenIn, MessageGenClient frame, int width, int height) {
@@ -99,6 +100,14 @@ public class TwitterView extends JPanel {
 		genText.setEnabled(false);
 		result.setText("");
 		username.setText("15CharsUsername");
+	}
+	
+	/**
+	 * Used to prevent changing views while the program is still analyzing data.
+	 * @return a boolean indicating if the program is currently analyzing
+	 */
+	public boolean isAnalyzing() {
+		return this.analyzingInput;
 	}
 	
 	/**

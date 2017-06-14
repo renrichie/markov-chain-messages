@@ -36,6 +36,7 @@ public class GraphicalView extends JPanel {
 	private JTextArea result;
 	private FileDialog fd;
 	private String fileName;
+	private boolean analyzingInput;
 	private final String instructions = "Select a .txt containing some input text using the 'Browse' button.\n"
 										+ "Press the 'Generate' button in order to randomly generate messages based on the provided input.\n";
 	
@@ -58,6 +59,7 @@ public class GraphicalView extends JPanel {
 		genText.setEnabled(false);
 		
 		browse = new JButton("Browse...");
+		analyzingInput = false;
 		
 		howToUse = new JButton("How To Use");
 		
@@ -79,6 +81,14 @@ public class GraphicalView extends JPanel {
 	}
 	
 	/**
+	 * Used to prevent changing views while the program is still analyzing data.
+	 * @return a boolean indicating if the program is currently analyzing
+	 */
+	public boolean isAnalyzing() {
+		return this.analyzingInput;
+	}
+	
+	/**
 	 * Used to reset the views to their default state upon switching.
 	 */
 	public void reset() {
@@ -91,44 +101,60 @@ public class GraphicalView extends JPanel {
 	 */
 	private void setupListeners() {
 		browse.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				fd.setVisible(true);
-				fileName = fd.getDirectory() + fd.getFile();
-				
-				// Clear all previous input and read in the new input
-				if (fileName != null) {
-					msgGen.clearInput();
-					
-					String text = "";
-					boolean analyzingInput = true;
-					genText.setEnabled(!analyzingInput);
-					
-					try {
-						BufferedReader io = new BufferedReader(new InputStreamReader(new FileInputStream(new File(fileName)), Charset.forName("windows-1252")));
-						
-						for (String x = io.readLine(); x != null; x = io.readLine())
-			            {
-							text += x + " ";
-						}
-
-						io.close();
-					} catch (IOException exception) {
-						System.out.println("An exception has appeared: " + fileName);
-						fileName = null;
-					}
-					
-					// Add the input to the message generator
-					if (fileName != null) {
-						String[] input = text.split("\\s+");
-						
-						for (int i = 0; i < input.length - 1; i++) {
-							msgGen.addInput(input[i], input[i + 1]);
-						}
-						
-						analyzingInput = false;
-						genText.setEnabled(!analyzingInput);
-					}
+			private void startThread() {
+				// Prevents multiple Threads from analyzing the input
+				if (analyzingInput) {
+					JOptionPane.showMessageDialog(msgGenClient, "The program is currently analyzing the input!", "In Progress", JOptionPane.ERROR_MESSAGE);
+					return;
 				}
+				
+				// Starts a new thread
+				// Anonymous Thread method taken from ELITE at https://stackoverflow.com/questions/30286705/
+				new Thread() {
+					public void run() {
+						fd.setVisible(true);
+						fileName = fd.getDirectory() + fd.getFile();
+
+						// Clear all previous input and read in the new input
+						if (fileName != null) {
+							msgGen.clearInput();
+
+							String text = "";
+							analyzingInput = true;
+							genText.setEnabled(!analyzingInput);
+
+							try {
+								BufferedReader io = new BufferedReader(new InputStreamReader(new FileInputStream(new File(fileName)), Charset.forName("windows-1252")));
+
+								for (String x = io.readLine(); x != null; x = io.readLine())
+								{
+									text += x + " ";
+								}
+
+								io.close();
+							} catch (IOException exception) {
+								System.out.println("An exception has appeared: " + fileName);
+								fileName = null;
+							}
+
+							// Add the input to the message generator
+							if (fileName != null) {
+								String[] input = text.split("\\s+");
+
+								for (int i = 0; i < input.length - 1; i++) {
+									msgGen.addInput(input[i], input[i + 1]);
+								}
+
+								analyzingInput = false;
+								genText.setEnabled(!analyzingInput);
+							}
+						}
+					}
+				}.start();
+			}
+			
+			public void actionPerformed(ActionEvent e) {
+				startThread();
 			}
 		});
 		
