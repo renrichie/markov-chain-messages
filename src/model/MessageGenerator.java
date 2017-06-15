@@ -85,9 +85,6 @@ public class MessageGenerator {
 		
 		boolean sentenceStarter = Character.isUpperCase(firstWord.charAt(0));
 		
-		firstWord = firstWord.toLowerCase();
-		wordAfter = wordAfter.toLowerCase();
-		
 		// The word has yet to be represented
 		if (!contains(firstWord)) {
 			MarkovChain newWord = new MarkovChain(firstWord);
@@ -115,7 +112,7 @@ public class MessageGenerator {
 	 */
 	private boolean contains(String word) {
 		for (MarkovChain mc : listOfWords) {
-			if (mc.getWord().equalsIgnoreCase(word)) {
+			if (mc.getWord().equals(word)) {
 				return true;
 			}
 		}
@@ -166,7 +163,7 @@ public class MessageGenerator {
 		boolean needToCapitalize = false;
 		
 		char lastCharTemp = currentWord.charAt(currentWord.length() - 1);
-		needToCapitalize = (lastCharTemp == '!' || lastCharTemp == '.' || lastCharTemp == '?' || lastCharTemp == '"' || lastCharTemp == '\u201d' || lastCharTemp == ')');
+		needToCapitalize = (lastCharTemp == '!' || lastCharTemp == '.' || lastCharTemp == '?');
 		
 		// TODO: Possibly move the creation of a sentence into a new function and simply call it in this function
 		while (currentNumWords != numberOfWords) {
@@ -185,25 +182,23 @@ public class MessageGenerator {
 			
 			char firstChar = currentWord.charAt(0);
 			
-			// TODO: Maybe add some way to recognize proper nouns and leave them capitalized
 			// Capitalizes the word
-			if ((firstChar == '\u201c' || firstChar == '"') && currentWord.length() >= 2) {
-				currentWord = currentWord.substring(0,1) + currentWord.substring(1,2).toUpperCase() + currentWord.substring(2);
-			}
-			else if (needToCapitalize) {
-				currentWord = currentWord.substring(0,1).toUpperCase() + currentWord.substring(1);
+			if (needToCapitalize) {
+				if ((firstChar == '\u201c' || firstChar == '"') && currentWord.length() >= 2) {
+					currentWord = currentWord.substring(0,1) + currentWord.substring(1,2).toUpperCase() + currentWord.substring(2);
+				}
+				else {
+					currentWord = currentWord.substring(0,1).toUpperCase() + currentWord.substring(1);
+				}
 				needToCapitalize = false;
 			}
 			else if (wordNoNonAlphanumerics.equalsIgnoreCase("I")) {
 				currentWord = currentWord.toUpperCase();
 			}
-			else {
-				currentWord = currentWord.toLowerCase();
-			}
 			
 			// Checks to see if it is the end of a sentence
 			char lastChar = currentWord.charAt(currentWord.length() - 1);
-			needToCapitalize = (lastChar == '!' || lastChar == '.' || lastChar == '?' || lastChar == '"' || lastChar == '\u201d' || lastChar == ')');
+			needToCapitalize = (lastChar == '!' || lastChar == '.' || lastChar == '?');
 			
 			retVal += currentWord + " ";
 			currentNumWords++;
