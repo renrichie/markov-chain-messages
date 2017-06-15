@@ -157,10 +157,12 @@ public class TwitterView extends JPanel {
 
 					if (user.length() == 0) {
 						JOptionPane.showMessageDialog(msgGenClient, "There needs to be a specified username!", "Error", JOptionPane.ERROR_MESSAGE);
+						analyzingInput = false;
 						return;
 					}
 					else if (user.length() > 15) {
 						JOptionPane.showMessageDialog(msgGenClient, "The specified username is too long!", "Error", JOptionPane.ERROR_MESSAGE);
+						analyzingInput = false;
 						return;
 					}
 
@@ -195,12 +197,14 @@ public class TwitterView extends JPanel {
 						}
 						catch(TwitterException te) {
 							JOptionPane.showMessageDialog(msgGenClient, "An error occurred when attempting to parse the user's profile!", "Error", JOptionPane.ERROR_MESSAGE);
+							analyzingInput = false;
 							return;
 						}
 					}
 
 					if (statuses.isEmpty()) {
 						JOptionPane.showMessageDialog(msgGenClient, "The user has no statuses!", "Error", JOptionPane.ERROR_MESSAGE);
+						analyzingInput = false;
 						return;
 					}
 
