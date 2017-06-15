@@ -165,7 +165,6 @@ public class MessageGenerator {
 		char lastCharTemp = currentWord.charAt(currentWord.length() - 1);
 		needToCapitalize = (lastCharTemp == '!' || lastCharTemp == '.' || lastCharTemp == '?');
 		
-		// TODO: Possibly move the creation of a sentence into a new function and simply call it in this function
 		while (currentNumWords != numberOfWords) {
 			if (!contains(currentWord)) {
 				currentWord = weightedWordSelection();
