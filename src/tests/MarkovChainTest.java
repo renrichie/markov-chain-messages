@@ -50,16 +50,4 @@ public class MarkovChainTest {
 		mc.setIsCapital(false);
 		assertFalse(mc.isCapital());
 	}
-	
-	@Test
-	public void testIsProperNounAndSetter() {
-		MarkovChain mc = new MarkovChain("Bob");
-		assertFalse(mc.isProperNoun());
-		
-		mc.setIsProperNoun(true);
-		assertTrue(mc.isProperNoun());
-		
-		mc.setIsProperNoun(false);
-		assertFalse(mc.isProperNoun());
-	}
 }

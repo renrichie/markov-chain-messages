@@ -21,14 +21,12 @@ public class MarkovChain {
 	private String word;
 	private int occurrences;
 	private boolean capitalized;
-	private boolean properNoun;
 	private HashMap<String,Integer> possibleStates;
 	
 	public MarkovChain(String word) {
 		this.word = word;
 		this.occurrences = 1;
 		this.capitalized = false;
-		this.properNoun = false;
 		this.possibleStates = new HashMap<>();
 	}
 	
@@ -72,22 +70,6 @@ public class MarkovChain {
 	 */
 	public void setIsCapital(boolean value) {
 		this.capitalized = value;
-	}
-	
-	/**
-	 * Indicates whether or not the current word is potentially a proper noun.
-	 * @return true if the word is proper, false otherwise
-	 */
-	public boolean isProperNoun() {
-		return this.properNoun;
-	}
-	
-	/**
-	 * Sets the boolean flag that indicates whether or not the word is a proper noun.
-	 * @param value - a boolean value indicating its status
-	 */
-	public void setIsProperNoun(boolean value) {
-		this.properNoun = value;
 	}
 	
 	/**
