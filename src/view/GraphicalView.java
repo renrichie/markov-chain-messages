@@ -132,6 +132,7 @@ public class GraphicalView extends JPanel {
 								}
 
 								io.close();
+								result.setText("");
 							} catch (IOException exception) {
 								System.out.println("An exception has appeared: " + fileName);
 								analyzingInput = false;

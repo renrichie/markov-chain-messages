@@ -36,7 +36,8 @@ public class MessageGenClient extends JFrame {
 	private TwitterView twitterView;
 	private GraphicalView graphicView;
 	private JPanel currentView;
-	private int width, height;
+	private final int width = 500, 
+			          height = 300;
 	
 	public MessageGenClient() {
 		msgGen = new MessageGenerator();
@@ -44,8 +45,6 @@ public class MessageGenClient extends JFrame {
 		twitterView = new TwitterView(msgGen, this, width, height);
 		graphicView = new GraphicalView(msgGen, this, width, height);
 		
-		width = 500;
-		height = 300;
 		this.setSize(width, height);
 		this.setResizable(false);
 		this.setTitle("Markov Chain Message Generator");

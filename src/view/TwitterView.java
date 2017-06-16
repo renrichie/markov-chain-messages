@@ -137,19 +137,16 @@ public class TwitterView extends JPanel {
 	 *
 	 */
 	private class TwitterListener implements ActionListener {
-		private void startThread() {
-			// Prevents multiple Threads from analyzing the input
-			if (analyzingInput) {
-				JOptionPane.showMessageDialog(msgGenClient, "The program is currently analyzing the input!", "In Progress", JOptionPane.ERROR_MESSAGE);
-				return;
-			}
-			
+		private String oldUser = "";
+		
+		private void startThread() {	
 			// Starts a new thread
 			// Anonymous Thread method taken from ELITE at https://stackoverflow.com/questions/30286705/
 			new Thread() {
 				public void run() {
 					analyzingInput = true;
 					genText.setEnabled(!analyzingInput);
+					result.setText("");
 					msgGen.clearInput();
 					System.gc();
 
@@ -223,12 +220,21 @@ public class TwitterView extends JPanel {
 
 					analyzingInput = false;
 					genText.setEnabled(!analyzingInput);
+					oldUser = user;
 				}
 			}.start();
 		}
 		
 		@Override
-		public void actionPerformed(ActionEvent arg0) {			
+		public void actionPerformed(ActionEvent arg0) {
+			// Prevents multiple Threads from analyzing the input
+			if (analyzingInput) {
+				JOptionPane.showMessageDialog(msgGenClient, "The program is currently analyzing the input!", "In Progress", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			else if (oldUser.equalsIgnoreCase(username.getText())) {
+				return;
+			}
 			startThread();
 		}
 	}

@@ -47,8 +47,8 @@ public class MessageGenerator {
 	          break;
 	      }
 	      catch(TwitterException e) {
-
 	        e.printStackTrace();
+	        System.exit(-1);
 	      }
 	    }
 	    for (Status s : statuses) {
@@ -59,14 +59,11 @@ public class MessageGenerator {
 	}
 
 	private ArrayList<MarkovChain> listOfWords;
-	private String[] commonArticles;
+	private final String[] commonArticles = new String[] {"A", "An", "The"};
+	private final int minWordsInSentence = 3;
 	
 	public MessageGenerator() {
 		listOfWords = new ArrayList<>();
-		commonArticles = new String[3];
-		commonArticles[0] = "A";
-		commonArticles[1] = "An";
-		commonArticles[2] = "The";
 	}
 	
 	/**
@@ -133,6 +130,8 @@ public class MessageGenerator {
 		String retVal = "",
 			   currentWord = "";
 		
+		int currentNumWordsSentence = 0;
+		
 		// Adds all the possible words into an array list
 		for (MarkovChain mc : listOfWords) {
 			if (mc.isCapital()) {
@@ -140,67 +139,53 @@ public class MessageGenerator {
 			}
 		}
 		
-		// Chooses the first word of the sentence
-		if (possibleSentenceStarts.isEmpty()) {
-			// Use common articles to start the sentence
-			if (Math.random() <= 0.5) {
-				int randomNum = ThreadLocalRandom.current().nextInt(0, commonArticles.length);
-				currentWord = commonArticles[randomNum];
+		do {
+			// Chooses the first word of the sentence
+			if (possibleSentenceStarts.isEmpty()) {
+				// Use common articles to start the sentence
+				if (Math.random() <= 0.5) {
+					int randomNum = ThreadLocalRandom.current().nextInt(0, commonArticles.length);
+					currentWord = commonArticles[randomNum];
+				}
+				// Choose a random word from the list of words to start the sentence by using a weighted selection based on the number of occurrences
+				else {
+					currentWord = weightedWordSelection();
+				}
 			}
-			// Choose a random word from the list of words to start the sentence by using a weighted selection based on the number of occurrences
 			else {
-				currentWord = weightedWordSelection();
+				int randomNum = ThreadLocalRandom.current().nextInt(0, possibleSentenceStarts.size());
+				currentWord = possibleSentenceStarts.get(randomNum);
 			}
-		}
-		else {
-			int randomNum = ThreadLocalRandom.current().nextInt(0, possibleSentenceStarts.size());
-			currentWord = possibleSentenceStarts.get(randomNum);
-		}
+			
+			char lastCharacterFirstWord = currentWord.charAt(currentWord.length() - 1);
+			if (!(lastCharacterFirstWord == '!' || lastCharacterFirstWord == '.' || lastCharacterFirstWord == '?')) {
+				currentNumWordsSentence++;
+			}
+		} while (currentNumWordsSentence == 0);
 		
 		retVal += currentWord + " ";
-		int numberOfWords = ThreadLocalRandom.current().nextInt(10, 30);
+		int numWordsTotal = ThreadLocalRandom.current().nextInt(10, 30);
 		int currentNumWords = 1;
-		boolean needToCapitalize = false;
 		
-		char lastCharTemp = currentWord.charAt(currentWord.length() - 1);
-		needToCapitalize = (lastCharTemp == '!' || lastCharTemp == '.' || lastCharTemp == '?');
-		
-		while (currentNumWords != numberOfWords) {
-			if (!contains(currentWord)) {
-				currentWord = weightedWordSelection();
-			}
-			else {
-				currentWord = getNextWord(currentWord);
-			}
-			
-			String wordNoNonAlphanumerics = currentWord.replaceAll("[^A-Za-z0-9]", "");
-			
-			if (wordNoNonAlphanumerics.length() == 0) {
-				continue;
-			}
-			
-			char firstChar = currentWord.charAt(0);
-			
-			// Capitalizes the word
-			if (needToCapitalize) {
-				if ((firstChar == '\u201c' || firstChar == '"') && currentWord.length() >= 2) {
-					currentWord = currentWord.substring(0,1) + currentWord.substring(1,2).toUpperCase() + currentWord.substring(2);
-				}
-				else {
-					currentWord = currentWord.substring(0,1).toUpperCase() + currentWord.substring(1);
-				}
-				needToCapitalize = false;
-			}
-			else if (wordNoNonAlphanumerics.equalsIgnoreCase("I")) {
-				currentWord = currentWord.toUpperCase();
-			}
-			
-			// Checks to see if it is the end of a sentence
+		while (currentNumWords != numWordsTotal) {
 			char lastChar = currentWord.charAt(currentWord.length() - 1);
-			needToCapitalize = (lastChar == '!' || lastChar == '.' || lastChar == '?');
+			boolean endOfSentence = (lastChar == '!' || lastChar == '.' || lastChar == '?');
+			
+			// Keeps generating words until a word without punctuation is given if the sentence has not reached the minimum size yet
+			do {
+				currentWord = getNextWord(currentWord);
+				lastChar = currentWord.charAt(currentWord.length() - 1);
+				endOfSentence = (lastChar == '!' || lastChar == '.' || lastChar == '?');
+			} while (currentNumWordsSentence < minWordsInSentence && endOfSentence);
 			
 			retVal += currentWord + " ";
 			currentNumWords++;
+			currentNumWordsSentence++;
+			
+			// Resets the count for words in the current sentence
+			if (currentNumWordsSentence > minWordsInSentence && endOfSentence) {
+				currentNumWordsSentence = 0;
+			}
 		}
 		
 		retVal = retVal.substring(0,1).toUpperCase() + retVal.substring(1, retVal.length() - 1);
@@ -247,7 +232,7 @@ public class MessageGenerator {
 	 * @param word - a String containing the current word in the sentence
 	 * @return a String with a possible response that follows the current word
 	 */
-	private String getNextWord(String word) {
+	private String getPossibleWord(String word) {
 		for (MarkovChain mc : listOfWords) {
 			if (mc.getWord().equalsIgnoreCase(word)) {
 				return mc.getPossibleState();
@@ -255,5 +240,56 @@ public class MessageGenerator {
 		}
 		
 		return ".";
+	}
+	
+	/**
+	 * Generates the next word in the sentence based on the current word. 
+	 * If the current word is not in the data structure, it performs a weighted selection on all the words of the input.
+	 * @param currentWord - a String containing the current word in the sentence
+	 * @return a String with the next word in the sentence
+	 */
+	private String getNextWord(String currentWord) {
+		String wordNoNonAlphanumerics = currentWord.replaceAll("[^A-Za-z0-9]", "");
+
+		// Generates a word that is not entirely non-Alphanumerics
+		while (wordNoNonAlphanumerics.length() == 0) {
+			currentWord = weightedWordSelection();
+			wordNoNonAlphanumerics = currentWord.replaceAll("[^A-Za-z0-9]", "");
+		}
+		
+		char lastChar = ' ';
+		boolean needToCapitalize = false;
+		
+		// Checks to see if it is the beginning of a new sentence
+		if (currentWord.length() > 0) {
+			lastChar = currentWord.charAt(currentWord.length() - 1);
+			needToCapitalize = (lastChar == '!' || lastChar == '.' || lastChar == '?');
+		}
+		
+		// Chooses a word
+		if (!contains(currentWord)) {
+			currentWord = weightedWordSelection();
+		}
+		else {
+			currentWord = getPossibleWord(currentWord);
+		}
+
+		char firstChar = currentWord.charAt(0);
+
+		// Capitalizes the word
+		if (needToCapitalize) {
+			if ((firstChar == '\u201c' || firstChar == '"') && currentWord.length() >= 2) {
+				currentWord = currentWord.substring(0,1) + currentWord.substring(1,2).toUpperCase() + currentWord.substring(2);
+			}
+			else {
+				currentWord = currentWord.substring(0,1).toUpperCase() + currentWord.substring(1);
+			}
+			needToCapitalize = false;
+		}
+		else if (wordNoNonAlphanumerics.equalsIgnoreCase("I")) {
+			currentWord = currentWord.toUpperCase();
+		}
+		
+		return currentWord;
 	}
 }
