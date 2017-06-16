@@ -25,9 +25,13 @@ public class MessageGeneratorTest {
 		String firstOne = tokenized[0];
 		
 		assertTrue(Character.isUpperCase(firstOne.charAt(0)));
-		assertFalse(Character.isUpperCase(firstOne.charAt(1)));
 		
-		assertTrue(message.charAt(message.length() - 1) == '.');
+		if (firstOne.length() > 1) {
+			assertFalse(Character.isUpperCase(firstOne.charAt(1)));
+		}
+		
+		char lastChar = message.charAt(message.length() - 1);
+		assertTrue(lastChar == '.' || lastChar == '?' || lastChar == '!');
 		
 		assertTrue(tokenized.length >= 10 && tokenized.length <= 30);
 		
