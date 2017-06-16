@@ -166,6 +166,8 @@ public class MessageGenerator {
 		retVal += currentWord + " ";
 		int numWordsTotal = ThreadLocalRandom.current().nextInt(10, 30);
 		int currentNumWords = 1;
+		int endSentenceAtNum = ThreadLocalRandom.current().nextInt(3, 10);
+		boolean endedSentenceEarly = false;
 		
 		while (currentNumWords != numWordsTotal) {
 			char lastChar = currentWord.charAt(currentWord.length() - 1);
@@ -173,7 +175,7 @@ public class MessageGenerator {
 			
 			// Keeps generating words until a word without punctuation is given if the sentence has not reached the minimum size yet
 			do {
-				currentWord = getNextWord(currentWord);
+				currentWord = getNextWord(currentWord, endedSentenceEarly);
 				lastChar = currentWord.charAt(currentWord.length() - 1);
 				endOfSentence = (lastChar == '!' || lastChar == '.' || lastChar == '?');
 			} while (currentNumWordsSentence < minWordsInSentence && endOfSentence);
@@ -183,8 +185,16 @@ public class MessageGenerator {
 			currentNumWordsSentence++;
 			
 			// Resets the count for words in the current sentence
-			if (currentNumWordsSentence > minWordsInSentence && endOfSentence) {
+			if (currentNumWordsSentence > minWordsInSentence && (endOfSentence || endedSentenceEarly)) {
 				currentNumWordsSentence = 0;
+				endedSentenceEarly = false;
+			}
+			// Prematurely ends a sentence to try and avoid run-on sentences
+			else if (currentNumWordsSentence > minWordsInSentence && currentNumWordsSentence == endSentenceAtNum) {
+				retVal = retVal.substring(0,1).toUpperCase() + retVal.substring(1, retVal.length() - 1) + ". ";
+				endSentenceAtNum = ThreadLocalRandom.current().nextInt(3, 10);
+				currentNumWordsSentence = 0;
+				endedSentenceEarly = true;
 			}
 		}
 		
@@ -246,9 +256,10 @@ public class MessageGenerator {
 	 * Generates the next word in the sentence based on the current word. 
 	 * If the current word is not in the data structure, it performs a weighted selection on all the words of the input.
 	 * @param currentWord - a String containing the current word in the sentence
+	 * @param sentenceEndedEarly - a boolean indicating if the algorithm ended the sentence early
 	 * @return a String with the next word in the sentence
 	 */
-	private String getNextWord(String currentWord) {
+	private String getNextWord(String currentWord, boolean sentenceEndedEarly) {
 		String wordNoNonAlphanumerics = currentWord.replaceAll("[^A-Za-z0-9]", "");
 
 		// Generates a word that is not entirely non-Alphanumerics
@@ -277,7 +288,7 @@ public class MessageGenerator {
 		char firstChar = currentWord.charAt(0);
 
 		// Capitalizes the word
-		if (needToCapitalize) {
+		if (needToCapitalize || sentenceEndedEarly) {
 			if ((firstChar == '\u201c' || firstChar == '"') && currentWord.length() >= 2) {
 				currentWord = currentWord.substring(0,1) + currentWord.substring(1,2).toUpperCase() + currentWord.substring(2);
 			}
