@@ -1,5 +1,6 @@
 package view;
 
+import java.io.File;
 import java.net.URL;
 
 import javafx.application.Application;
@@ -46,8 +47,8 @@ class Browser extends Region {
         getStyleClass().add("browser");
         
         // Load the web page
-        URL url = this.getClass().getResource("/html/twitter.html");
-        webEngine.load(url.toExternalForm());
+        File f = new File("html/twitter.html");
+        webEngine.load(f.toURI().toString());
         
         // Add the web view to the scene
         getChildren().add(browser);
