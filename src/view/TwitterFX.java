@@ -29,9 +29,8 @@ public class TwitterFX extends Application {
 		// Create the scene
         stage.setResizable(false);
         stage.setTitle("Twitter Web View");
-        scene = new Scene(new Browser(),750,500, Color.web("#666970"));
-        stage.setScene(scene);
-        //scene.getStylesheets().add("css/style.css");        
+        scene = new Scene(new Browser(),800,600, Color.web("#666970"));
+        stage.setScene(scene);      
         stage.show();
 	}
 
@@ -47,7 +46,7 @@ class Browser extends Region {
         getStyleClass().add("browser");
         
         // Load the web page
-        File f = new File("html/twitter.html");
+        File f = new File("html-css/twitter.html");
         webEngine.load(f.toURI().toString());
         
         // Add the web view to the scene
