@@ -1,12 +1,8 @@
 package view;
 
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.io.File;
-import java.net.URL;
 
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
@@ -32,7 +28,7 @@ public class TwitterFX extends Application {
 		// Create the scene
         stage.setResizable(false);
         stage.setTitle("Twitter Web View");
-        scene = new Scene(new Browser(),800,700, Color.web("#666970"));
+        scene = new Scene(new Browser(),800,800, Color.web("#666970"));
         stage.setScene(scene);
         stage.show();
 	}
