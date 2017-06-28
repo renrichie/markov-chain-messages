@@ -120,7 +120,7 @@ public class MessageGenClient extends JFrame {
 	 *
 	 */
 	private class MenuItemListener implements ActionListener {
-
+		
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// Find out the text of the JMenuItem that was just clicked
@@ -138,7 +138,13 @@ public class MessageGenClient extends JFrame {
 				repaint();
 			}
 			else if (text.equals("Twitter (HTML/CSS GUI)")) {
-				TwitterFX.main(null);
+				new Thread() {
+					public void run() {
+						TwitterFX.main(null);
+					}
+				}.start();
+				
+				((JMenuItem) e.getSource()).setEnabled(false);
 			}
 		}
 	}
