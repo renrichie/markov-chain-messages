@@ -1,8 +1,13 @@
 package model;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
+
+import javax.swing.JOptionPane;
 
 import org.apache.commons.math3.distribution.EnumeratedDistribution;
 import org.apache.commons.math3.util.Pair;
@@ -61,9 +66,11 @@ public class MessageGenerator {
 	private ArrayList<MarkovChain> listOfWords;
 	private final String[] commonArticles = new String[] {"A", "An", "The"};
 	private final int minWordsInSentence = 3;
+	private boolean analyzingInput;
 	
 	public MessageGenerator() {
 		listOfWords = new ArrayList<>();
+		analyzingInput = false;
 	}
 	
 	/**
@@ -207,6 +214,99 @@ public class MessageGenerator {
 	public void clearInput() {
 		listOfWords.clear();
 		System.gc();
+	}
+	
+	public boolean isAnalyzing() {
+		return this.analyzingInput;
+	}
+	
+	private static int retVal = 0;
+	
+	public int readFromTwitter(String user) {
+		if (analyzingInput) {
+			return 0;
+		}
+		
+		// Starts a new thread
+		// Anonymous Thread method taken from ELITE at https://stackoverflow.com/questions/30286705/
+		new Thread() {
+			public void run() {
+				analyzingInput = true;
+				clearInput();
+				System.gc();
+
+				// Creates a builder using Twitter auth keys
+				ConfigurationBuilder cb = new ConfigurationBuilder();
+
+				try {
+					Scanner keyReader = new Scanner(new File("assets/keys"));
+					cb.setOAuthConsumerKey(keyReader.nextLine());
+					cb.setOAuthConsumerSecret(keyReader.nextLine());
+					cb.setOAuthAccessToken(keyReader.nextLine());
+					cb.setOAuthAccessTokenSecret(keyReader.nextLine());
+					keyReader.close();
+				} catch (FileNotFoundException fe) {
+					fe.printStackTrace();
+					System.exit(-1);
+				}
+
+				// Pulls the Tweets from the specified user's profile
+				Twitter twitter = new TwitterFactory(cb.build()).getInstance();
+				
+				// Check if the user exists
+				try{
+					twitter.showUser(user);
+				}
+				catch (TwitterException te) {
+					if (te.getStatusCode() == 404) {
+						retVal = -1;
+						return;
+					}
+				}
+
+				int pageno = 1;
+				List<Status> statuses = new ArrayList<>();
+
+				while (true) {
+					try {
+						int size = statuses.size(); 
+						Paging page = new Paging(pageno++, 100);
+						statuses.addAll(twitter.getUserTimeline(user, page));
+						if (statuses.size() == size)
+							break;
+					}
+					catch(TwitterException te) {
+						analyzingInput = false;
+						retVal = -1;
+						return;
+					}
+				}
+
+				if (statuses.isEmpty()) {
+					analyzingInput = false;
+					retVal = -2;
+					return;
+				}
+
+				// Puts in the text as input for the markov chains
+				String text = "";
+
+				for (Status s : statuses) {
+					text += s.getText() + " ";
+				}
+
+				String[] input = text.split("\\s+");
+
+				for (int i = 0; i < input.length - 1; i++) {
+					addInput(input[i], input[i + 1]);
+				}
+
+				analyzingInput = false;
+				retVal = 0;
+			}
+		}.start();
+		
+		return retVal;
 	}
 	
 	/**

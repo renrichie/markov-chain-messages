@@ -44,7 +44,7 @@ class Browser extends Region {
         getStyleClass().add("browser");
         
         // Load the web page
-        File f = new File("html-css/twitter.html");
+        File f = new File("src/html-css-js/twitter.html");
         webEngine.load(f.toURI().toString());
         
         // Add the web view to the scene
