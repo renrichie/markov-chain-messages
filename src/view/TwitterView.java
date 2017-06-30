@@ -116,6 +116,11 @@ public class TwitterView extends JPanel {
 	private void setupListeners() {
 		genText.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				if (msgGen.isAnalyzing()) {
+					JOptionPane.showMessageDialog(msgGenClient, "The program is currently analyzing the input!", "In Progress", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				
 				String text = msgGen.generateText();
 				result.setText(text);
 				System.out.println(text);
@@ -139,6 +144,9 @@ public class TwitterView extends JPanel {
 	private class TwitterListener implements ActionListener {
 		private String oldUser = "";
 		
+		/**
+		 * Reads in the Twitter timeline on a separate thread.
+		 */
 		private void startThread() {
 			String user = username.getText();
 			
@@ -151,13 +159,6 @@ public class TwitterView extends JPanel {
 			if (errorCode == -1) {
 				JOptionPane.showMessageDialog(msgGenClient, "An error occurred when attempting to parse the user's profile!", "Error", JOptionPane.ERROR_MESSAGE);
 				genText.setEnabled(false);
-				analyzingInput = false;
-				return;
-			}
-			else if (errorCode == -2) {
-				JOptionPane.showMessageDialog(msgGenClient, "The user has no statuses!", "Error", JOptionPane.ERROR_MESSAGE);
-				genText.setEnabled(false);
-				analyzingInput = false;
 				return;
 			}
 			
@@ -166,30 +167,41 @@ public class TwitterView extends JPanel {
 			oldUser = user;
 		}
 		
+		/**
+		 * Checks to see if the given username is between 0 and 16 characters long.
+		 * @param user - the username to be checked
+		 * @return a boolean indicating if the username is of valid length
+		 */
 		private boolean usernameLengthCheck(String user) {
 			if (user.length() <= 0 || user.length() > 15) {
-				analyzingInput = false;
 				return false;
 			}
 			
 			return true;
 		}
 		
+		/**
+		 * Handles what action to perform when the analyze button is pressed.
+		 */
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			// Prevents multiple Threads from analyzing the input
-			if (analyzingInput) {
-				JOptionPane.showMessageDialog(msgGenClient, "The program is currently analyzing the input!", "In Progress", JOptionPane.ERROR_MESSAGE);
-				return;
-			}
-			else if (!usernameLengthCheck(username.getText())) {
-				JOptionPane.showMessageDialog(msgGenClient, "The username is of invalid length!", "Error", JOptionPane.ERROR_MESSAGE);
-				return;
-			}
-			else if (oldUser.equalsIgnoreCase(username.getText())) {
-				return;
-			}
-			startThread();
+			new Thread() {
+				public void run() {
+					// Prevents multiple Threads from analyzing the input
+					if (msgGen.isAnalyzing()) {
+						JOptionPane.showMessageDialog(msgGenClient, "The program is currently analyzing the input!", "In Progress", JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+					else if (!usernameLengthCheck(username.getText())) {
+						JOptionPane.showMessageDialog(msgGenClient, "The username is of invalid length!", "Error", JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+					else if (oldUser.equalsIgnoreCase(username.getText())) {
+						return;
+					}
+					startThread();
+				}
+			}.start();
 		}
 	}
 }

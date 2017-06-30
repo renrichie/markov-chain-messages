@@ -216,16 +216,28 @@ public class MessageGenerator {
 		System.gc();
 	}
 	
+	/**
+	 * Returns whether or not the message generator is currently busy analyzing a profile.
+	 * @return a boolean indicating its current state
+	 */
 	public boolean isAnalyzing() {
 		return this.analyzingInput;
 	}
 	
-	private static int retVal = 0;
-	
+	/**
+	 * Reads in the specified user's Twitter timeline and parses it for input.
+	 * @param user - the Twitter user to be analyzed
+	 * @return an int indicating the function's error code; 0 = normal operation, -1 = no such user exists
+	 */
 	public int readFromTwitter(String user) {
 		if (analyzingInput) {
 			return 0;
 		}
+		
+		if (!checkIfUserExists(user)) {
+			return -1;
+		}
+		
 		
 		// Starts a new thread
 		// Anonymous Thread method taken from ELITE at https://stackoverflow.com/questions/30286705/
@@ -237,32 +249,10 @@ public class MessageGenerator {
 
 				// Creates a builder using Twitter auth keys
 				ConfigurationBuilder cb = new ConfigurationBuilder();
-
-				try {
-					Scanner keyReader = new Scanner(new File("assets/keys"));
-					cb.setOAuthConsumerKey(keyReader.nextLine());
-					cb.setOAuthConsumerSecret(keyReader.nextLine());
-					cb.setOAuthAccessToken(keyReader.nextLine());
-					cb.setOAuthAccessTokenSecret(keyReader.nextLine());
-					keyReader.close();
-				} catch (FileNotFoundException fe) {
-					fe.printStackTrace();
-					System.exit(-1);
-				}
+				readInAPIKeys(cb);
 
 				// Pulls the Tweets from the specified user's profile
 				Twitter twitter = new TwitterFactory(cb.build()).getInstance();
-				
-				// Check if the user exists
-				try{
-					twitter.showUser(user);
-				}
-				catch (TwitterException te) {
-					if (te.getStatusCode() == 404) {
-						retVal = -1;
-						return;
-					}
-				}
 
 				int pageno = 1;
 				List<Status> statuses = new ArrayList<>();
@@ -277,14 +267,12 @@ public class MessageGenerator {
 					}
 					catch(TwitterException te) {
 						analyzingInput = false;
-						retVal = -1;
 						return;
 					}
 				}
 
 				if (statuses.isEmpty()) {
 					analyzingInput = false;
-					retVal = -2;
 					return;
 				}
 
@@ -302,11 +290,54 @@ public class MessageGenerator {
 				}
 
 				analyzingInput = false;
-				retVal = 0;
 			}
 		}.start();
 		
-		return retVal;
+		return 0;
+	}
+	
+	/**
+	 * Reads in the Twitter API keys; used to reduce code duplication
+	 * @param cb - a ConfigurationBuilder to read the keys into
+	 */
+	private void readInAPIKeys(ConfigurationBuilder cb) {
+		try {
+			Scanner keyReader = new Scanner(new File("assets/keys"));
+			cb.setOAuthConsumerKey(keyReader.nextLine());
+			cb.setOAuthConsumerSecret(keyReader.nextLine());
+			cb.setOAuthAccessToken(keyReader.nextLine());
+			cb.setOAuthAccessTokenSecret(keyReader.nextLine());
+			keyReader.close();
+		} catch (FileNotFoundException fe) {
+			fe.printStackTrace();
+			System.exit(-1);
+		}
+	}
+	
+	/**
+	 * Checks to see if the Twitter user exists
+	 * @param user - the username of the Twitter user
+	 * @return a boolean indicating if the user exists or not
+	 */
+	private boolean checkIfUserExists(String user) {
+		// Creates a builder using Twitter auth keys
+		ConfigurationBuilder cb = new ConfigurationBuilder();
+		readInAPIKeys(cb);
+
+		// Pulls the Tweets from the specified user's profile
+		Twitter twitter = new TwitterFactory(cb.build()).getInstance();
+		
+		// Check if the user exists
+		try{
+			twitter.showUser(user);
+		}
+		catch (TwitterException te) {
+			if (te.getStatusCode() == 404) {
+				return false;
+			}
+		}
+		
+		return true;
 	}
 	
 	/**
