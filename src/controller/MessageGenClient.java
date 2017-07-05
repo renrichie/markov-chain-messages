@@ -17,6 +17,7 @@ import javax.swing.JPanel;
 
 import model.MessageGenerator;
 import view.GraphicalView;
+import view.TwitterFX;
 import view.TwitterView;
 
 /**
@@ -68,8 +69,10 @@ public class MessageGenClient extends JFrame {
 		// Adds the views to a menu
 		JMenuItem input = new JMenu("Input");
 		JMenuItem twitter = new JMenuItem("Twitter");
+		JMenuItem twitterWeb = new JMenuItem("Twitter (HTML/CSS GUI)");
 		JMenuItem text = new JMenuItem("Text File");
 		input.add(twitter);
+		input.add(twitterWeb);
 		input.add(text);
 		menu.add(input);
 
@@ -81,6 +84,7 @@ public class MessageGenClient extends JFrame {
 		// Add the same listener to all menu items requiring action
 		MenuItemListener menuListener = new MenuItemListener();
 		twitter.addActionListener(menuListener);
+		twitterWeb.addActionListener(menuListener);
 		text.addActionListener(menuListener);
 	}
 	
@@ -116,7 +120,7 @@ public class MessageGenClient extends JFrame {
 	 *
 	 */
 	private class MenuItemListener implements ActionListener {
-
+		
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			// Find out the text of the JMenuItem that was just clicked
@@ -132,6 +136,15 @@ public class MessageGenClient extends JFrame {
 			else if (text.equals("Text File")) {
 				setViewTo(graphicView);
 				repaint();
+			}
+			else if (text.equals("Twitter (HTML/CSS GUI)")) {
+				new Thread() {
+					public void run() {
+						TwitterFX.main(null);
+					}
+				}.start();
+				
+				((JMenuItem) e.getSource()).setEnabled(false);
 			}
 		}
 	}

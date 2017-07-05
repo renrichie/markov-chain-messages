@@ -116,6 +116,11 @@ public class TwitterView extends JPanel {
 	private void setupListeners() {
 		genText.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				if (msgGen.isAnalyzing()) {
+					JOptionPane.showMessageDialog(msgGenClient, "The program is currently analyzing the input!", "In Progress", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				
 				String text = msgGen.generateText();
 				result.setText(text);
 				System.out.println(text);
@@ -139,103 +144,64 @@ public class TwitterView extends JPanel {
 	private class TwitterListener implements ActionListener {
 		private String oldUser = "";
 		
-		private void startThread() {	
-			// Starts a new thread
-			// Anonymous Thread method taken from ELITE at https://stackoverflow.com/questions/30286705/
-			new Thread() {
-				public void run() {
-					analyzingInput = true;
-					genText.setEnabled(!analyzingInput);
-					result.setText("");
-					msgGen.clearInput();
-					System.gc();
-
-					String user = username.getText();
-
-					if (user.length() == 0) {
-						JOptionPane.showMessageDialog(msgGenClient, "There needs to be a specified username!", "Error", JOptionPane.ERROR_MESSAGE);
-						analyzingInput = false;
-						return;
-					}
-					else if (user.length() > 15) {
-						JOptionPane.showMessageDialog(msgGenClient, "The specified username is too long!", "Error", JOptionPane.ERROR_MESSAGE);
-						analyzingInput = false;
-						return;
-					}
-
-					// Creates a builder using Twitter auth keys
-					ConfigurationBuilder cb = new ConfigurationBuilder();
-
-					try {
-						Scanner keyReader = new Scanner(new File("assets/keys"));
-						cb.setOAuthConsumerKey(keyReader.nextLine());
-						cb.setOAuthConsumerSecret(keyReader.nextLine());
-						cb.setOAuthAccessToken(keyReader.nextLine());
-						cb.setOAuthAccessTokenSecret(keyReader.nextLine());
-						keyReader.close();
-					} catch (FileNotFoundException fe) {
-						fe.printStackTrace();
-						System.exit(-1);
-					}
-
-					// Pulls the Tweets from the specified user's profile
-					Twitter twitter = new TwitterFactory(cb.build()).getInstance();
-
-					int pageno = 1;
-					List<Status> statuses = new ArrayList<>();
-
-					while (true) {
-						try {
-							int size = statuses.size(); 
-							Paging page = new Paging(pageno++, 100);
-							statuses.addAll(twitter.getUserTimeline(user, page));
-							if (statuses.size() == size)
-								break;
-						}
-						catch(TwitterException te) {
-							JOptionPane.showMessageDialog(msgGenClient, "An error occurred when attempting to parse the user's profile!", "Error", JOptionPane.ERROR_MESSAGE);
-							analyzingInput = false;
-							return;
-						}
-					}
-
-					if (statuses.isEmpty()) {
-						JOptionPane.showMessageDialog(msgGenClient, "The user has no statuses!", "Error", JOptionPane.ERROR_MESSAGE);
-						analyzingInput = false;
-						return;
-					}
-
-					// Puts in the text as input for the markov chains
-					String text = "";
-
-					for (Status s : statuses) {
-						text += s.getText() + " ";
-					}
-
-					String[] input = text.split("\\s+");
-
-					for (int i = 0; i < input.length - 1; i++) {
-						msgGen.addInput(input[i], input[i + 1]);
-					}
-
-					analyzingInput = false;
-					genText.setEnabled(!analyzingInput);
-					oldUser = user;
-				}
-			}.start();
+		/**
+		 * Reads in the Twitter timeline on a separate thread.
+		 */
+		private void startThread() {
+			String user = username.getText();
+			
+			genText.setEnabled(false);
+			result.setText("");
+			
+			int errorCode = msgGen.readFromTwitter(user);	
+			analyzingInput = msgGen.isAnalyzing();
+			
+			if (errorCode == -1) {
+				JOptionPane.showMessageDialog(msgGenClient, "An error occurred when attempting to parse the user's profile!", "Error", JOptionPane.ERROR_MESSAGE);
+				genText.setEnabled(false);
+				return;
+			}
+			
+			analyzingInput = msgGen.isAnalyzing();
+			genText.setEnabled(!analyzingInput);
+			oldUser = user;
 		}
 		
+		/**
+		 * Checks to see if the given username is between 0 and 16 characters long.
+		 * @param user - the username to be checked
+		 * @return a boolean indicating if the username is of valid length
+		 */
+		private boolean usernameLengthCheck(String user) {
+			if (user.length() <= 0 || user.length() > 15) {
+				return false;
+			}
+			
+			return true;
+		}
+		
+		/**
+		 * Handles what action to perform when the analyze button is pressed.
+		 */
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			// Prevents multiple Threads from analyzing the input
-			if (analyzingInput) {
-				JOptionPane.showMessageDialog(msgGenClient, "The program is currently analyzing the input!", "In Progress", JOptionPane.ERROR_MESSAGE);
-				return;
-			}
-			else if (oldUser.equalsIgnoreCase(username.getText())) {
-				return;
-			}
-			startThread();
+			new Thread() {
+				public void run() {
+					// Prevents multiple Threads from analyzing the input
+					if (msgGen.isAnalyzing()) {
+						JOptionPane.showMessageDialog(msgGenClient, "The program is currently analyzing the input!", "In Progress", JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+					else if (!usernameLengthCheck(username.getText())) {
+						JOptionPane.showMessageDialog(msgGenClient, "The username is of invalid length!", "Error", JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+					else if (oldUser.equalsIgnoreCase(username.getText())) {
+						return;
+					}
+					startThread();
+				}
+			}.start();
 		}
 	}
 }

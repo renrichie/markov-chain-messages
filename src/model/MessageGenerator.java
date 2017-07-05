@@ -1,7 +1,11 @@
 package model;
 
+import java.applet.Applet;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.commons.math3.distribution.EnumeratedDistribution;
@@ -21,7 +25,7 @@ import twitter4j.conf.ConfigurationBuilder;
  * @author Richie Ren
  *
  */
-public class MessageGenerator {
+public class MessageGenerator extends Applet {
 
 	public static void main(String[] args) {
 		ConfigurationBuilder cb = new ConfigurationBuilder();
@@ -61,9 +65,11 @@ public class MessageGenerator {
 	private ArrayList<MarkovChain> listOfWords;
 	private final String[] commonArticles = new String[] {"A", "An", "The"};
 	private final int minWordsInSentence = 3;
+	private boolean analyzingInput;
 	
 	public MessageGenerator() {
 		listOfWords = new ArrayList<>();
+		analyzingInput = false;
 	}
 	
 	/**
@@ -207,6 +213,130 @@ public class MessageGenerator {
 	public void clearInput() {
 		listOfWords.clear();
 		System.gc();
+	}
+	
+	/**
+	 * Returns whether or not the message generator is currently busy analyzing a profile.
+	 * @return a boolean indicating its current state
+	 */
+	public boolean isAnalyzing() {
+		return this.analyzingInput;
+	}
+	
+	/**
+	 * Reads in the specified user's Twitter timeline and parses it for input.
+	 * @param user - the Twitter user to be analyzed
+	 * @return an int indicating the function's error code; 0 = normal operation, -1 = no such user exists
+	 */
+	public int readFromTwitter(String user) {
+		if (analyzingInput) {
+			return 0;
+		}
+		
+		if (!checkIfUserExists(user)) {
+			return -1;
+		}
+		
+		
+		// Starts a new thread
+		// Anonymous Thread method taken from ELITE at https://stackoverflow.com/questions/30286705/
+		new Thread() {
+			public void run() {
+				analyzingInput = true;
+				clearInput();
+				System.gc();
+
+				// Creates a builder using Twitter auth keys
+				ConfigurationBuilder cb = new ConfigurationBuilder();
+				readInAPIKeys(cb);
+
+				// Pulls the Tweets from the specified user's profile
+				Twitter twitter = new TwitterFactory(cb.build()).getInstance();
+
+				int pageno = 1;
+				List<Status> statuses = new ArrayList<>();
+
+				while (true) {
+					try {
+						int size = statuses.size(); 
+						Paging page = new Paging(pageno++, 100);
+						statuses.addAll(twitter.getUserTimeline(user, page));
+						if (statuses.size() == size)
+							break;
+					}
+					catch(TwitterException te) {
+						analyzingInput = false;
+						return;
+					}
+				}
+
+				if (statuses.isEmpty()) {
+					analyzingInput = false;
+					return;
+				}
+
+				// Puts in the text as input for the markov chains
+				String text = "";
+
+				for (Status s : statuses) {
+					text += s.getText() + " ";
+				}
+
+				String[] input = text.split("\\s+");
+
+				for (int i = 0; i < input.length - 1; i++) {
+					addInput(input[i], input[i + 1]);
+				}
+
+				analyzingInput = false;
+			}
+		}.start();
+		
+		return 0;
+	}
+	
+	/**
+	 * Reads in the Twitter API keys; used to reduce code duplication
+	 * @param cb - a ConfigurationBuilder to read the keys into
+	 */
+	private void readInAPIKeys(ConfigurationBuilder cb) {
+		try {
+			Scanner keyReader = new Scanner(new File("assets/keys"));
+			cb.setOAuthConsumerKey(keyReader.nextLine());
+			cb.setOAuthConsumerSecret(keyReader.nextLine());
+			cb.setOAuthAccessToken(keyReader.nextLine());
+			cb.setOAuthAccessTokenSecret(keyReader.nextLine());
+			keyReader.close();
+		} catch (FileNotFoundException fe) {
+			fe.printStackTrace();
+			System.exit(-1);
+		}
+	}
+	
+	/**
+	 * Checks to see if the Twitter user exists
+	 * @param user - the username of the Twitter user
+	 * @return a boolean indicating if the user exists or not
+	 */
+	private boolean checkIfUserExists(String user) {
+		// Creates a builder using Twitter auth keys
+		ConfigurationBuilder cb = new ConfigurationBuilder();
+		readInAPIKeys(cb);
+
+		// Pulls the Tweets from the specified user's profile
+		Twitter twitter = new TwitterFactory(cb.build()).getInstance();
+		
+		// Check if the user exists
+		try{
+			twitter.showUser(user);
+		}
+		catch (TwitterException te) {
+			if (te.getStatusCode() == 404) {
+				return false;
+			}
+		}
+		
+		return true;
 	}
 	
 	/**
