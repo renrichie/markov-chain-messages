@@ -1,13 +1,12 @@
 package model;
 
+import java.applet.Applet;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
-
-import javax.swing.JOptionPane;
 
 import org.apache.commons.math3.distribution.EnumeratedDistribution;
 import org.apache.commons.math3.util.Pair;
@@ -26,7 +25,7 @@ import twitter4j.conf.ConfigurationBuilder;
  * @author Richie Ren
  *
  */
-public class MessageGenerator {
+public class MessageGenerator extends Applet {
 
 	public static void main(String[] args) {
 		ConfigurationBuilder cb = new ConfigurationBuilder();
