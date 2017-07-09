@@ -43,10 +43,24 @@ Iteration 3
 ----------
 - Refactoring and polishing
 - Implement usage of Twitter API to allow for scraping of user profile as input
-- ~~Make GUI resemble the format of a Twitter post~~ 
+- ~~Make GUI resemble the format of a Twitter post~~
+
+Additional Work
+----------
+- Added an optional (but currently non-functional) HTML/CSS GUI for the Twitter version
+
+TODO
+==========
+- Add local server functionality to run the message generator for the HTML/CSS Twitter view
+  - Create API to send and receive from the server, possibly using JSON
 
 FUTURE PLANS
 ==========
 - Add Named Entity Recognition for properly capitalizing proper nouns
 - Ensure message length to be under 150 characters in order to follow the format of a Twitter post
 - Optimization and additional refactoring
+
+HOW TO RUN
+==========
+- Import the project into your IDE
+- Run the MessageGenClient under the controller package
